@@ -5,6 +5,9 @@ import { ProductCard } from "@/components/shop/product-card";
 import { currentSeed, seededShuffle } from "@/lib/format";
 import { getAllProducts, getBestsellers, getNew, type Product } from "@/lib/data";
 
+// Данные из БД на каждый запрос (каталог меняется с остатком).
+export const dynamic = "force-dynamic";
+
 const cols4 = { "--cols": 4 } as CSSProperties;
 
 const features = [

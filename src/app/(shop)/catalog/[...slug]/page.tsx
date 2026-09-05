@@ -11,6 +11,8 @@ import {
   isLeafCategory,
 } from "@/lib/data";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(props: PageProps<"/catalog/[...slug]">): Promise<Metadata> {
   const { slug } = await props.params;
   const cat = await getCategory(slug[slug.length - 1]);

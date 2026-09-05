@@ -10,7 +10,7 @@
 //   // станет:
 //   import * as source from "./prisma-repo";
 
-import * as source from "./test-data-source";
+import * as source from "./prisma-repo";
 
 export type { Product, Category, Variant } from "@/lib/test-data";
 
