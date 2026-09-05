@@ -1,0 +1,232 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1480 1400" font-family="'Segoe UI', Roboto, Arial, sans-serif">
+  <defs>
+    <marker id="arw" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#0804ff"/>
+    </marker>
+  </defs>
+
+  <rect width="1480" height="1400" fill="#e5e4e0"/>
+
+  <!-- ── Заголовок ── -->
+  <text x="50" y="56" font-size="15" letter-spacing="3" fill="#565452">ТРУДКРУТШОП · КАК УСТРОЕН ИНТЕРНЕТ-МАГАЗИН</text>
+  <text x="50" y="98" font-size="36" font-weight="700" fill="#1d1d1d">Карта работы магазина</text>
+  <text x="50" y="124" font-size="15" fill="#565452">Простыми словами: путь заказа, что хранится в базе, какие внешние сервисы подключены и что умеет админка.</text>
+  <line x1="50" y1="142" x2="1430" y2="142" stroke="#bfbebe"/>
+
+  <!-- ══════════ A. Покупатель-физлицо ══════════ -->
+  <text x="50" y="176" font-size="14" letter-spacing="2" fill="#0804ff">ПОКУПАТЕЛЬ (ФИЗЛИЦО) — ПУТЬ ЗАКАЗА</text>
+
+  <g font-size="12.5">
+    <!-- 1 Каталог -->
+    <rect x="50" y="190" width="215" height="150" fill="#fff" stroke="#bfbebe"/>
+    <circle cx="72" cy="216" r="13" fill="#0804ff"/><text x="72" y="221" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">1</text>
+    <text x="94" y="221" font-size="15" font-weight="700" fill="#1d1d1d">Каталог</text>
+    <text x="66" y="252" fill="#565452">Смотрит товары,</text>
+    <text x="66" y="271" fill="#565452">выбирает размер и цвет.</text>
+    <text x="66" y="295" fill="#565452">Видит наличие каждой</text>
+    <text x="66" y="314" fill="#565452">комбинации.</text>
+    <!-- 2 Корзина -->
+    <rect x="283" y="190" width="215" height="150" fill="#fff" stroke="#bfbebe"/>
+    <circle cx="305" cy="216" r="13" fill="#0804ff"/><text x="305" y="221" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">2</text>
+    <text x="327" y="221" font-size="15" font-weight="700" fill="#1d1d1d">Корзина</text>
+    <text x="299" y="252" fill="#565452">Кладёт товар в корзину.</text>
+    <text x="299" y="276" fill="#565452">Остаток бронируется —</text>
+    <text x="299" y="295" fill="#565452">чтобы не купил другой,</text>
+    <text x="299" y="314" fill="#565452">пока идёт оплата.</text>
+    <!-- 3 Оформление -->
+    <rect x="516" y="190" width="215" height="150" fill="#fff" stroke="#bfbebe"/>
+    <circle cx="538" cy="216" r="13" fill="#0804ff"/><text x="538" y="221" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">3</text>
+    <text x="560" y="221" font-size="15" font-weight="700" fill="#1d1d1d">Оформление</text>
+    <text x="532" y="252" fill="#565452">Имя, телефон, e-mail,</text>
+    <text x="532" y="271" fill="#565452">способ доставки,</text>
+    <text x="532" y="290" fill="#565452">комментарий.</text>
+    <!-- 4 Оплата -->
+    <rect x="749" y="190" width="215" height="150" fill="#fff" stroke="#bfbebe"/>
+    <circle cx="771" cy="216" r="13" fill="#0804ff"/><text x="771" y="221" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">4</text>
+    <text x="793" y="221" font-size="15" font-weight="700" fill="#1d1d1d">Оплата картой</text>
+    <text x="765" y="252" fill="#565452">Переходит на страницу</text>
+    <text x="765" y="271" fill="#565452">банка «Точка» и платит</text>
+    <text x="765" y="290" fill="#565452">картой онлайн.</text>
+    <!-- 5 Подтверждение -->
+    <rect x="982" y="190" width="215" height="150" fill="#fff" stroke="#bfbebe"/>
+    <circle cx="1004" cy="216" r="13" fill="#0804ff"/><text x="1004" y="221" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">5</text>
+    <text x="1026" y="221" font-size="15" font-weight="700" fill="#1d1d1d">Чек и письмо</text>
+    <text x="998" y="252" fill="#565452">Банк подтверждает</text>
+    <text x="998" y="271" fill="#565452">оплату и пробивает чек</text>
+    <text x="998" y="290" fill="#565452">(54-ФЗ). Письмо</text>
+    <text x="998" y="309" fill="#565452">с составом заказа.</text>
+    <!-- 6 Доставка -->
+    <rect x="1215" y="190" width="215" height="150" fill="#fff" stroke="#bfbebe"/>
+    <circle cx="1237" cy="216" r="13" fill="#0804ff"/><text x="1237" y="221" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">6</text>
+    <text x="1259" y="221" font-size="15" font-weight="700" fill="#1d1d1d">Доставка</text>
+    <text x="1229" y="252" fill="#565452">SafeRoute оформляет</text>
+    <text x="1229" y="271" fill="#565452">отправление, трек — на</text>
+    <text x="1229" y="290" fill="#565452">почту. При отгрузке —</text>
+    <text x="1229" y="309" fill="#565452">списание со склада.</text>
+  </g>
+  <!-- стрелки A -->
+  <g stroke="#0804ff" stroke-width="2">
+    <line x1="267" y1="265" x2="279" y2="265" marker-end="url(#arw)"/>
+    <line x1="500" y1="265" x2="512" y2="265" marker-end="url(#arw)"/>
+    <line x1="733" y1="265" x2="745" y2="265" marker-end="url(#arw)"/>
+    <line x1="966" y1="265" x2="978" y2="265" marker-end="url(#arw)"/>
+    <line x1="1199" y1="265" x2="1211" y2="265" marker-end="url(#arw)"/>
+  </g>
+
+  <!-- ══════════ B. Юрлицо ══════════ -->
+  <text x="50" y="382" font-size="14" letter-spacing="2" fill="#0804ff">ЮРЛИЦО — ЗАКАЗ ПО СЧЁТУ</text>
+  <g font-size="12.5">
+    <!-- 1 ИНН -->
+    <rect x="50" y="396" width="261" height="140" fill="#fff" stroke="#bfbebe"/>
+    <circle cx="72" cy="422" r="13" fill="#0804ff"/><text x="72" y="427" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">1</text>
+    <text x="94" y="427" font-size="15" font-weight="700" fill="#1d1d1d">Вводит ИНН</text>
+    <text x="66" y="458" fill="#565452">Сервис DaData сам</text>
+    <text x="66" y="477" fill="#565452">подтягивает реквизиты</text>
+    <text x="66" y="496" fill="#565452">компании по ИНН.</text>
+    <!-- 2 Скидка -->
+    <rect x="329" y="396" width="261" height="140" fill="#fff" stroke="#bfbebe"/>
+    <circle cx="351" cy="422" r="13" fill="#0804ff"/><text x="351" y="427" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">2</text>
+    <text x="373" y="427" font-size="15" font-weight="700" fill="#1d1d1d">Скидка</text>
+    <text x="345" y="458" fill="#565452">Применяется скидка</text>
+    <text x="345" y="477" fill="#565452">для юридических лиц.</text>
+    <!-- 3 Счёт -->
+    <rect x="608" y="396" width="261" height="140" fill="#fff" stroke="#bfbebe"/>
+    <circle cx="630" cy="422" r="13" fill="#0804ff"/><text x="630" y="427" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">3</text>
+    <text x="652" y="427" font-size="15" font-weight="700" fill="#1d1d1d">Счёт (PDF)</text>
+    <text x="624" y="458" fill="#565452">Сайт формирует счёт</text>
+    <text x="624" y="477" fill="#565452">на оплату.</text>
+    <!-- 4 Оплата -->
+    <rect x="887" y="396" width="261" height="140" fill="#fff" stroke="#bfbebe"/>
+    <circle cx="909" cy="422" r="13" fill="#0804ff"/><text x="909" y="427" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">4</text>
+    <text x="931" y="427" font-size="15" font-weight="700" fill="#1d1d1d">Оплата по счёту</text>
+    <text x="881" y="458" fill="#565452">Компания платит по</text>
+    <text x="881" y="477" fill="#565452">счёту, менеджер</text>
+    <text x="881" y="496" fill="#565452">подтверждает в админке.</text>
+    <!-- 5 УПД -->
+    <rect x="1166" y="396" width="264" height="140" fill="#fff" stroke="#bfbebe"/>
+    <circle cx="1188" cy="422" r="13" fill="#0804ff"/><text x="1188" y="427" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">5</text>
+    <text x="1210" y="427" font-size="15" font-weight="700" fill="#1d1d1d">Документы (УПД)</text>
+    <text x="1160" y="458" fill="#565452">УПД уходит через ЭДО.</text>
+    <text x="1160" y="477" fill="#565452">Нет ЭДО — PDF</text>
+    <text x="1160" y="496" fill="#565452">на подпись.</text>
+  </g>
+  <g stroke="#0804ff" stroke-width="2">
+    <line x1="313" y1="466" x2="325" y2="466" marker-end="url(#arw)"/>
+    <line x1="592" y1="466" x2="604" y2="466" marker-end="url(#arw)"/>
+    <line x1="871" y1="466" x2="883" y2="466" marker-end="url(#arw)"/>
+    <line x1="1150" y1="466" x2="1162" y2="466" marker-end="url(#arw)"/>
+  </g>
+
+  <!-- ══════════ C. База данных ══════════ -->
+  <text x="50" y="582" font-size="14" letter-spacing="2" fill="#0804ff">ЧТО ХРАНИТСЯ В БАЗЕ ДАННЫХ</text>
+  <g font-size="12.5">
+    <!-- Каталог -->
+    <rect x="50" y="596" width="261" height="234" fill="#fff" stroke="#bfbebe"/>
+    <text x="66" y="624" font-size="15" font-weight="700" fill="#1d1d1d">Каталог</text>
+    <text x="66" y="652" fill="#565452">Разделы — дерево любой</text>
+    <text x="66" y="671" fill="#565452">вложенности.</text>
+    <text x="66" y="695" fill="#565452">Товары и их варианты</text>
+    <text x="66" y="714" fill="#565452">(размер × цвет × принт) —</text>
+    <text x="66" y="733" fill="#565452">наличие и цена по</text>
+    <text x="66" y="752" fill="#565452">каждой комбинации.</text>
+    <text x="66" y="776" fill="#565452">Фото, таблицы размеров,</text>
+    <text x="66" y="795" fill="#565452">похожие товары.</text>
+    <!-- Заказы -->
+    <rect x="329" y="596" width="261" height="234" fill="#fff" stroke="#bfbebe"/>
+    <text x="345" y="624" font-size="15" font-weight="700" fill="#1d1d1d">Заказы</text>
+    <text x="345" y="652" fill="#565452">Кто и что заказал.</text>
+    <text x="345" y="676" fill="#565452">Статусы и полная</text>
+    <text x="345" y="695" fill="#565452">история обработки.</text>
+    <text x="345" y="719" fill="#565452">Реквизиты юрлиц.</text>
+    <text x="345" y="743" fill="#565452">Счета и УПД.</text>
+    <text x="345" y="767" fill="#565452">Промокоды и</text>
+    <text x="345" y="786" fill="#565452">сертификаты в заказе.</text>
+    <!-- Склад -->
+    <rect x="608" y="596" width="261" height="234" fill="#fff" stroke="#bfbebe"/>
+    <text x="624" y="624" font-size="15" font-weight="700" fill="#1d1d1d">Склад</text>
+    <text x="624" y="652" fill="#565452">Журнал всех движений:</text>
+    <text x="624" y="676" fill="#565452">приход, продажа, брак,</text>
+    <text x="624" y="695" fill="#565452">подарок, возврат.</text>
+    <rect x="624" y="712" width="229" height="94" fill="#e9e8ff"/>
+    <text x="638" y="736" font-size="12.5" font-weight="700" fill="#0804ff">Всегда видно,</text>
+    <text x="638" y="756" font-size="12.5" fill="#1d1d1d">куда делся каждый</text>
+    <text x="638" y="775" font-size="12.5" fill="#1d1d1d">товар — до штуки.</text>
+    <!-- Маркетинг -->
+    <rect x="887" y="596" width="261" height="234" fill="#fff" stroke="#bfbebe"/>
+    <text x="903" y="624" font-size="15" font-weight="700" fill="#1d1d1d">Маркетинг</text>
+    <text x="903" y="652" fill="#565452">Промокоды.</text>
+    <text x="903" y="676" fill="#565452">Подарочные</text>
+    <text x="903" y="695" fill="#565452">сертификаты —</text>
+    <text x="903" y="714" fill="#565452">с частичным</text>
+    <text x="903" y="733" fill="#565452">погашением.</text>
+    <text x="903" y="757" fill="#565452">Баннеры-слайдер</text>
+    <text x="903" y="776" fill="#565452">на главной.</text>
+    <!-- Служебное -->
+    <rect x="1166" y="596" width="264" height="234" fill="#fff" stroke="#bfbebe"/>
+    <text x="1182" y="624" font-size="15" font-weight="700" fill="#1d1d1d">Служебное</text>
+    <text x="1182" y="652" fill="#565452">Страницы: Доставка,</text>
+    <text x="1182" y="671" fill="#565452">Оплата, О магазине.</text>
+    <text x="1182" y="695" fill="#565452">Админы и их роли.</text>
+    <text x="1182" y="719" fill="#565452">Переадресация со</text>
+    <text x="1182" y="738" fill="#565452">старого сайта (SEO).</text>
+    <text x="1182" y="762" fill="#565452">Журнал обмена</text>
+    <text x="1182" y="781" fill="#565452">с сервисами.</text>
+  </g>
+
+  <!-- ══════════ D. Внешние сервисы + Админка ══════════ -->
+  <text x="50" y="878" font-size="14" letter-spacing="2" fill="#0804ff">ВНЕШНИЕ СЕРВИСЫ</text>
+  <text x="760" y="878" font-size="14" letter-spacing="2" fill="#0804ff">АДМИНКА — ЧТО МОЖЕТ ВАШ ПЕРСОНАЛ</text>
+
+  <rect x="50" y="892" width="670" height="250" fill="#fff" stroke="#bfbebe"/>
+  <g font-size="13">
+    <text x="70" y="922" font-weight="700" fill="#1d1d1d">Точка Банк</text><text x="210" y="922" fill="#565452">— приём оплаты картой + кассовые чеки (54-ФЗ)</text>
+    <text x="70" y="954" font-weight="700" fill="#1d1d1d">SafeRoute</text><text x="210" y="954" fill="#565452">— расчёт и оформление доставки, трек-номер</text>
+    <text x="70" y="986" font-weight="700" fill="#1d1d1d">ЭДО (Диадок/СБИС)</text><text x="260" y="986" fill="#565452">— электронные документы для юрлиц (УПД)</text>
+    <text x="70" y="1018" font-weight="700" fill="#1d1d1d">DaData</text><text x="210" y="1018" fill="#565452">— автозаполнение реквизитов компании по ИНН</text>
+    <text x="70" y="1050" font-weight="700" fill="#1d1d1d">1С / Битрикс24</text><text x="210" y="1050" fill="#565452">— на будущее: синхронизация товаров и остатков</text>
+  </g>
+  <rect x="70" y="1072" width="630" height="50" fill="#e9e8ff"/>
+  <text x="84" y="1093" font-size="12.5" font-weight="700" fill="#0804ff">Пока сервис не подключён</text>
+  <text x="84" y="1112" font-size="12.5" fill="#1d1d1d">— работает тестовый режим, сайт не ломается. Реальный включается ключом.</text>
+
+  <rect x="760" y="892" width="670" height="250" fill="#fff" stroke="#bfbebe"/>
+  <g font-size="13" fill="#565452">
+    <text x="780" y="922"><tspan font-weight="700" fill="#1d1d1d">Заказы:</tspan> поиск, статусы, редактирование, создание за клиента, архив</text>
+    <text x="780" y="952"><tspan font-weight="700" fill="#1d1d1d">Товары и разделы:</tspan> карточки, фото, цены, импорт из Excel</text>
+    <text x="780" y="982"><tspan font-weight="700" fill="#1d1d1d">Склад:</tspan> списание брака/подарков, приёмка, импорт офлайн-продаж</text>
+    <text x="780" y="1012"><tspan font-weight="700" fill="#1d1d1d">Сертификаты, промокоды, баннеры, страницы</tspan></text>
+    <text x="780" y="1042"><tspan font-weight="700" fill="#1d1d1d">Пользователи</tspan> с ролями: администратор / менеджер / контент</text>
+    <text x="780" y="1072"><tspan font-weight="700" fill="#1d1d1d">Уведомление на e-mail</tspan> о каждом новом заказе</text>
+  </g>
+
+  <!-- ══════════ E. Принципы ══════════ -->
+  <text x="50" y="1184" font-size="14" letter-spacing="2" fill="#0804ff">ПОЧЕМУ ЭТО НАДЁЖНО</text>
+  <g font-size="12.5">
+    <rect x="50" y="1198" width="332" height="120" fill="#fff" stroke="#bfbebe"/>
+    <text x="66" y="1226" font-size="14" font-weight="700" fill="#1d1d1d">Наличие — по комбинации</text>
+    <text x="66" y="1254" fill="#565452">Размер, цвет и принт считаются</text>
+    <text x="66" y="1273" fill="#565452">отдельно, а не «товар в целом».</text>
+    <text x="66" y="1292" fill="#565452">Не продадите то, чего нет.</text>
+
+    <rect x="399" y="1198" width="332" height="120" fill="#fff" stroke="#bfbebe"/>
+    <text x="415" y="1226" font-size="14" font-weight="700" fill="#1d1d1d">Честный склад</text>
+    <text x="415" y="1254" fill="#565452">Остаток меняется только через</text>
+    <text x="415" y="1273" fill="#565452">журнал — всегда понятно, куда</text>
+    <text x="415" y="1292" fill="#565452">ушёл товар.</text>
+
+    <rect x="748" y="1198" width="332" height="120" fill="#fff" stroke="#bfbebe"/>
+    <text x="764" y="1226" font-size="14" font-weight="700" fill="#1d1d1d">Цена фиксируется</text>
+    <text x="764" y="1254" fill="#565452">Меняете прайс — уже созданные</text>
+    <text x="764" y="1273" fill="#565452">заказы не меняются.</text>
+
+    <rect x="1097" y="1198" width="333" height="120" fill="#fff" stroke="#bfbebe"/>
+    <text x="1113" y="1226" font-size="14" font-weight="700" fill="#1d1d1d">Оплата — по факту</text>
+    <text x="1113" y="1254" fill="#565452">Заказ считается оплаченным</text>
+    <text x="1113" y="1273" fill="#565452">только после подтверждения</text>
+    <text x="1113" y="1292" fill="#565452">банка, не «на честном слове».</text>
+  </g>
+
+  <!-- Footer -->
+  <line x1="50" y1="1348" x2="1430" y2="1348" stroke="#bfbebe"/>
+  <text x="50" y="1374" font-size="12.5" fill="#565452">Технологии: Next.js 16 (быстрый сайт с продвижением в Яндекс/Google) · PostgreSQL + Prisma · сервер в России (152-ФЗ) · резервные копии базы.</text>
+</svg>

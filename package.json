@@ -6,10 +6,24 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed",
+    "db:reset": "prisma migrate reset",
+    "db:studio": "prisma studio",
+    "worker": "tsx src/jobs/worker.ts",
+    "plan:pdf": "node scripts/build-plan-pdf.mjs"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@prisma/client": "^6.16.1",
     "next": "16.3.4",
+    "nodemailer": "^6.9.15",
+    "pg-boss": "^10.1.5",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
@@ -18,9 +32,14 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/nodemailer": "^6.4.16",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
+    "marked": "^18.0.11",
+    "prisma": "^6.16.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.20.6",
+    "typescript": "^5",
+    "vitest": "^3.2.4"
   }
 }

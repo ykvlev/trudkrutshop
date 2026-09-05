@@ -1,0 +1,555 @@
+// Схема данных ТрудКрутШоп. Соответствует разделу 5 плана (docs/plan.md).
+// Ключевые принципы:
+//  • остатки и цены живут на уровне ВАРИАНТА (размер × цвет × принт), не товара;
+//  • изменение остатка — только через StockMovement (журнал), никогда напрямую;
+//  • цена в заказе — снимок на момент оформления (не меняется при смене прайса);
+//  • внешние документы (счёт, УПД) и обмен с интеграциями логируются.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+// ─────────────────────────── Перечисления ───────────────────────────
+
+enum CustomerType {
+  PHYSICAL
+  LEGAL
+}
+
+enum OrderStatus {
+  NEW_PHYSICAL       // заказал физлицо
+  AWAITING_PAYMENT   // заказал, но не оплатил
+  PAID_PHYSICAL      // оплачено физлицом
+  NEW_LEGAL          // заказало юрлицо (ждёт оплаты по счёту)
+  PAID_LEGAL         // оплачено юрлицом
+  SHIPPED            // отправлен (списывает склад)
+  COMPLETED          // выполнен
+  CANCELLED          // отменён
+  ARCHIVED           // в архиве
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum DeliveryType {
+  SAFEROUTE
+  PICKUP
+}
+
+// Причина движения остатка — почему товар пришёл/ушёл со склада.
+enum StockReason {
+  ONLINE_SALE        // продажа онлайн
+  OFFLINE_SALE       // продажа офлайн по кассе магазина
+  WRITE_OFF_GIFT     // списание: подарок
+  WRITE_OFF_DEFECT   // списание: брак
+  RETURN             // возврат на склад
+  RECEIPT            // приёмка
+  SYNC               // синхронизация (1С/Битрикс24)
+  MANUAL             // ручная корректировка
+}
+
+enum PromoType {
+  PERCENT
+  FIXED
+}
+
+enum CertificateStatus {
+  PENDING            // оплачен, ждёт отправки (отложенная)
+  ACTIVE             // отправлен, доступен к погашению
+  PARTIALLY_USED     // частично погашен, есть остаток
+  USED               // полностью погашен
+  EXPIRED
+  CANCELLED
+}
+
+enum RelationType {
+  SIMILAR            // похожие товары
+  BOUGHT_TOGETHER    // с этим покупают
+}
+
+enum RelationSource {
+  MANUAL
+  AUTO
+}
+
+enum EdoStatus {
+  DRAFT
+  SENT
+  DELIVERED
+  SIGNED
+  REJECTED
+  MANUAL             // подписан вручную (PDF), без ЭДО
+}
+
+enum AdminRole {
+  ADMIN
+  MANAGER
+  CONTENT
+}
+
+enum IntegrationSystem {
+  TOCHKA
+  SAFEROUTE
+  EDO
+  DADATA
+  CRM
+  OFFLINE_POS
+}
+
+// ──────────────────────────── Каталог ───────────────────────────────
+
+model Category {
+  id             String     @id @default(cuid())
+  slug           String     @unique
+  name           String
+  description    String?
+  // Материализованный путь для быстрой выборки всего поддерева ("/znachki/piny").
+  path           String     @default("/")
+  seoText        String?    // текст над сеткой товаров
+  seoTitle       String?
+  seoDescription String?
+  image          String?
+  sortOrder      Int        @default(0)
+  isActive       Boolean    @default(true)
+
+  parentId       String?
+  parent         Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children       Category[] @relation("CategoryTree")
+
+  products       Product[]
+
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@index([parentId])
+  @@index([path])
+}
+
+model Product {
+  id             String            @id @default(cuid())
+  slug           String            @unique
+  name           String
+  description    String?
+  basePrice      Decimal           @db.Decimal(10, 2)
+  oldPrice       Decimal?          @db.Decimal(10, 2)
+  isNew          Boolean           @default(false)
+  isBestseller   Boolean           @default(false)
+  weight         Int?              // граммы — для расчёта доставки
+  length         Int?              // мм
+  width          Int?              // мм
+  height         Int?              // мм
+  isActive       Boolean           @default(true)
+  publishedAt    DateTime?
+  seoTitle       String?
+  seoDescription String?
+
+  categoryId     String
+  category       Category          @relation(fields: [categoryId], references: [id])
+
+  sizeChartId    String?
+  sizeChart      SizeChart?        @relation(fields: [sizeChartId], references: [id])
+
+  variants       ProductVariant[]
+  images         ProductImage[]
+  attributes     ProductAttribute[]
+  relations      ProductRelation[]  @relation("ProductRelationsFrom")
+  relatedTo      ProductRelation[]  @relation("ProductRelationsTo")
+
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([categoryId])
+  @@index([isActive, publishedAt])
+}
+
+// Ключевая таблица: остатки и цены — здесь, по каждой комбинации параметров.
+model ProductVariant {
+  id             String          @id @default(cuid())
+  sku            String          @unique
+  size           String?
+  color          String?
+  print          String?
+  price          Decimal         @db.Decimal(10, 2)
+  oldPrice       Decimal?        @db.Decimal(10, 2)
+  stock          Int             @default(0)   // меняется ТОЛЬКО через StockMovement
+  reserved       Int             @default(0)   // бронь между «оформил» и «оплатил»
+  barcode        String?
+  isActive       Boolean         @default(true)
+
+  productId      String
+  product        Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  images         ProductImage[]
+  cartItems      CartItem[]
+  orderItems     OrderItem[]
+  movements      StockMovement[]
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@unique([productId, size, color, print])
+  @@index([productId])
+}
+
+model ProductImage {
+  id         String          @id @default(cuid())
+  url        String
+  alt        String?
+  sortOrder  Int             @default(0)
+
+  productId  String
+  product    Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // Опционально — фото под конкретный вариант (цвет).
+  variantId  String?
+  variant    ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+}
+
+model Attribute {
+  id        String            @id @default(cuid())
+  code      String            @unique
+  name      String
+  values    AttributeValue[]
+}
+
+model AttributeValue {
+  id           String             @id @default(cuid())
+  value        String
+  attributeId  String
+  attribute    Attribute          @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+  products     ProductAttribute[]
+
+  @@index([attributeId])
+}
+
+model ProductAttribute {
+  productId        String
+  product          Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attributeValueId String
+  attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id], onDelete: Cascade)
+
+  @@id([productId, attributeValueId])
+  @@index([attributeValueId])
+}
+
+model SizeChart {
+  id        String    @id @default(cuid())
+  name      String
+  data      Json      // таблица размеров
+  products  Product[]
+}
+
+model ProductRelation {
+  id         String         @id @default(cuid())
+  type       RelationType
+  source     RelationSource @default(MANUAL)
+
+  productId  String
+  product    Product        @relation("ProductRelationsFrom", fields: [productId], references: [id], onDelete: Cascade)
+  relatedId  String
+  related    Product        @relation("ProductRelationsTo", fields: [relatedId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, relatedId, type])
+  @@index([productId])
+}
+
+// ──────────────────────────── Продажа ───────────────────────────────
+
+model Cart {
+  id         String     @id @default(cuid())
+  token      String     @unique   // гостевая корзина по cookie-токену
+  items      CartItem[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model CartItem {
+  id             String         @id @default(cuid())
+  quantity       Int            @default(1)
+  priceSnapshot  Decimal        @db.Decimal(10, 2) // цена на момент добавления
+
+  cartId         String
+  cart           Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variantId      String
+  variant        ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@unique([cartId, variantId])
+  @@index([cartId])
+}
+
+model Order {
+  id             String              @id @default(cuid())
+  number         String              @unique   // человекочитаемый номер
+  status         OrderStatus         @default(NEW_PHYSICAL)
+  customerType   CustomerType        @default(PHYSICAL)
+
+  customerName   String
+  phone          String
+  email          String
+  comment        String?
+
+  deliveryType   DeliveryType
+  deliveryData   Json?               // адрес / ПВЗ SafeRoute
+  deliveryCost   Decimal             @default(0) @db.Decimal(10, 2)
+  trackNumber    String?
+
+  promoCodeId    String?
+  promoCode      PromoCode?          @relation(fields: [promoCodeId], references: [id])
+  discountAmount Decimal             @default(0) @db.Decimal(10, 2)
+  subtotal       Decimal             @db.Decimal(10, 2)
+  total          Decimal             @db.Decimal(10, 2)
+
+  paymentStatus  PaymentStatus       @default(PENDING)
+  paymentId      String?             // id платежа в Точке
+  receiptId      String?             // id фискального чека
+
+  legalEntityId  String?
+  legalEntity    LegalEntity?        @relation(fields: [legalEntityId], references: [id])
+
+  items          OrderItem[]
+  statusHistory  OrderStatusHistory[]
+  invoices       Invoice[]
+  upds           Upd[]
+  movements      StockMovement[]
+  certsIssued    Certificate[]       @relation("CertificateSource")
+  certsRedeemed  Certificate[]       @relation("CertificateRedeem")
+
+  createdAt      DateTime            @default(now())
+  paidAt         DateTime?
+  shippedAt      DateTime?
+  archivedAt     DateTime?
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id             String          @id @default(cuid())
+  nameSnapshot   String          // снимок названия
+  skuSnapshot    String
+  priceSnapshot  Decimal         @db.Decimal(10, 2)
+  quantity       Int
+
+  orderId        String
+  order          Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId      String?
+  variant        ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@index([orderId])
+}
+
+model OrderStatusHistory {
+  id          String       @id @default(cuid())
+  fromStatus  OrderStatus?
+  toStatus    OrderStatus
+  comment     String?
+
+  orderId     String
+  order       Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  adminUserId String?
+  adminUser   AdminUser?   @relation(fields: [adminUserId], references: [id])
+
+  createdAt   DateTime     @default(now())
+
+  @@index([orderId])
+}
+
+model LegalEntity {
+  id           String   @id @default(cuid())
+  inn          String
+  kpp          String?
+  ogrn         String?
+  name         String
+  legalAddress String?
+  bankName     String?
+  bankBik      String?
+  bankAccount  String?
+  corrAccount  String?
+  signer       String?
+  orders       Order[]
+  createdAt    DateTime @default(now())
+
+  @@index([inn])
+}
+
+model Invoice {
+  id        String   @id @default(cuid())
+  number    String   @unique
+  date      DateTime @default(now())
+  amount    Decimal  @db.Decimal(10, 2)
+  pdfUrl    String?
+
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+}
+
+model Upd {
+  id           String    @id @default(cuid())
+  number       String    @unique
+  date         DateTime  @default(now())
+  pdfUrl       String?
+  xml          String?   // формат ФНС
+  edoStatus    EdoStatus @default(DRAFT)
+  edoMessageId String?
+
+  orderId      String
+  order        Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+}
+
+// ─────────────────────────── Маркетинг ──────────────────────────────
+
+model PromoCode {
+  id            String    @id @default(cuid())
+  code          String    @unique
+  type          PromoType
+  value         Decimal   @db.Decimal(10, 2)
+  minAmount     Decimal?  @db.Decimal(10, 2)
+  usageLimit    Int?
+  usedCount     Int       @default(0)
+  categoryScope String[]  // ограничение по категориям (slug'и), пусто = все
+  validFrom     DateTime?
+  validTo       DateTime?
+  isActive      Boolean   @default(true)
+  orders        Order[]
+  createdAt     DateTime  @default(now())
+}
+
+model Certificate {
+  id              String             @id @default(cuid())
+  code            String             @unique
+  nominal         Decimal            @db.Decimal(10, 2)
+  balance         Decimal            @db.Decimal(10, 2) // остаток (частичное погашение)
+  recipientEmail  String?
+  recipientPhone  String?
+  sendAt          DateTime?          // отложенная отправка
+  sentAt          DateTime?
+  status          CertificateStatus  @default(PENDING)
+
+  designId        String?
+  design          CertificateDesign? @relation(fields: [designId], references: [id])
+
+  sourceOrderId   String?
+  sourceOrder     Order?             @relation("CertificateSource", fields: [sourceOrderId], references: [id])
+  redeemOrderId   String?
+  redeemOrder     Order?             @relation("CertificateRedeem", fields: [redeemOrderId], references: [id])
+
+  createdAt       DateTime           @default(now())
+
+  @@index([status])
+}
+
+model CertificateDesign {
+  id           String        @id @default(cuid())
+  name         String
+  imageUrl     String?
+  codeX        Int?          // позиция кода на макете
+  codeY        Int?
+  isActive     Boolean       @default(true)
+  certificates Certificate[]
+}
+
+model Banner {
+  id            String    @id @default(cuid())
+  title         String?
+  imageDesktop  String
+  imageMobile   String
+  href          String?
+  showFrom      DateTime?
+  showTo        DateTime?
+  sortOrder     Int       @default(0)
+  isActive      Boolean   @default(true)
+}
+
+// ───────────────────────────── Склад ────────────────────────────────
+
+// Единственный способ изменить остаток. delta > 0 приход, < 0 расход.
+model StockMovement {
+  id          String         @id @default(cuid())
+  delta       Int
+  reason      StockReason
+  comment     String?
+
+  variantId   String
+  variant     ProductVariant @relation(fields: [variantId], references: [id])
+  orderId     String?
+  order       Order?         @relation(fields: [orderId], references: [id])
+  adminUserId String?
+  adminUser   AdminUser?     @relation(fields: [adminUserId], references: [id])
+
+  createdAt   DateTime       @default(now())
+
+  @@index([variantId])
+  @@index([reason])
+}
+
+// ──────────────────────────── Служебное ─────────────────────────────
+
+model Page {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  title          String
+  content        String
+  seoTitle       String?
+  seoDescription String?
+  isActive       Boolean  @default(true)
+  updatedAt      DateTime @updatedAt
+}
+
+model RegionalPage {
+  id        String   @id @default(cuid())
+  token     String   @unique // длинный непредсказуемый токен в URL, noindex
+  title     String
+  content   String
+  password  String?  // опциональный пароль
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model AdminUser {
+  id            String               @id @default(cuid())
+  email         String               @unique
+  name          String
+  passwordHash  String
+  role          AdminRole            @default(MANAGER)
+  isActive      Boolean              @default(true)
+  statusChanges OrderStatusHistory[]
+  movements     StockMovement[]
+  createdAt     DateTime             @default(now())
+}
+
+// Весь обмен с Точкой/SafeRoute/ЭДО — для разбора инцидентов.
+model IntegrationLog {
+  id        String            @id @default(cuid())
+  system    IntegrationSystem
+  direction String            // "in" | "out"
+  event     String?
+  payload   Json?
+  status    String?
+  createdAt DateTime          @default(now())
+
+  @@index([system, createdAt])
+}
+
+// Карта 301-редиректов со старого сайта — критично для SEO при переезде.
+model Redirect {
+  id         String @id @default(cuid())
+  fromPath   String @unique
+  toPath     String
+  statusCode Int    @default(301)
+}

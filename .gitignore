@@ -39,3 +39,24 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+!.env.example
+
+# extracted design-system bundles (used assets copied to public/brand and src/app/_fonts)
+/_dsx/
+/_rso_ds/
+/_fontstage/
+
+# local install log
+.install.log
+
+# archives (sources kept extracted)
+*.zip
+
+# duplicate contract copy (canonical: docs/contract)
+/docs/Договорной пакет ТрудКрутШоп/
+
+# python caches
+__pycache__/
+
+# claude local settings (personal)
+.claude/settings.local.json

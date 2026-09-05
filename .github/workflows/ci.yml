@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+# Отменяем предыдущие прогоны на той же ветке.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Проверки (lint · types · tests · build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          # npm-кэш не включаем: package-lock.json в репозитории нет.
+
+      - name: Установка зависимостей
+        run: npm install --no-audit --no-fund
+
+      - name: Генерация Prisma Client
+        run: npx prisma generate
+
+      - name: Проверка схемы Prisma
+        run: npx prisma validate
+
+      - name: Генерация типов роутов Next
+        run: npx next typegen
+
+      - name: Линт
+        run: npm run lint
+
+      - name: Проверка типов
+        run: npm run typecheck
+
+      - name: Юнит-тесты
+        run: npm test
+
+      - name: Сборка
+        run: npm run build
+        env:
+          # Витрина рендерится на тестовых данных; БД для сборки не нужна,
+          # но переменные должны существовать (импорт client).
+          DATABASE_URL: "postgresql://user:pass@localhost:5432/tksh?schema=public"
+
+  database:
+    name: Миграции и сид (Postgres)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: tksh
+          POSTGRES_PASSWORD: tksh
+          POSTGRES_DB: tksh_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U tksh"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: "postgresql://tksh:tksh@localhost:5432/tksh_test?schema=public"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Установка зависимостей
+        run: npm install --no-audit --no-fund
+
+      - name: Применение схемы к чистой БД (+ генерация клиента для сида)
+        run: npx prisma db push --accept-data-loss
+
+      - name: Сид тестовыми данными
+        run: npm run db:seed
