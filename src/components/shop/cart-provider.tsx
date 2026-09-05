@@ -1,43 +1,86 @@
 "use client";
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import type { Product, Variant } from "@/lib/test-data";
 
-// Каркасная корзина. Хранит позиции по id товара с количеством.
-// Настоящая корзина (снимок цены, вариант, остаток, cookie-токен, сервер)
-// придёт на этапе оплаты — здесь достаточно для демо витрины и чекаута.
+// Корзина на уровне ВАРИАНТА (размер × цвет × принт) со снимком данных позиции.
+// Снимок делает корзину самодостаточной: клиент не ходит в БД за названием/ценой,
+// а заказу нужен именно variantId (для брони остатка и снимка цены на сервере).
 
-export type CartItem = { productId: string; qty: number };
+export type CartLineItem = {
+  variantId: string;
+  productId: string;
+  slug: string;
+  name: string;
+  sku: string;
+  price: number;
+  oldPrice?: number;
+  category: string;
+  variantLabel?: string; // «M · Серый»
+  qty: number;
+};
+
+export type CartSnapshot = Omit<CartLineItem, "qty">;
+
+/** Первый доступный (в наличии) вариант товара, иначе первый. */
+export function pickVariant(p: Product): Variant | undefined {
+  return p.variants.find((v) => v.stock > 0) ?? p.variants[0];
+}
+
+const variantLabel = (v: Variant): string | undefined =>
+  [v.size, v.color, v.print].filter(Boolean).join(" · ") || undefined;
+
+/** Снимок позиции из товара и выбранного варианта. */
+export function toSnapshot(p: Product, v: Variant): CartSnapshot {
+  return {
+    variantId: v.id ?? v.sku,
+    productId: p.id,
+    slug: p.slug,
+    name: p.name,
+    sku: v.sku,
+    price: p.price,
+    oldPrice: p.oldPrice,
+    category: p.category,
+    variantLabel: variantLabel(v),
+  };
+}
 
 type CartContextValue = {
-  items: CartItem[];
-  count: number; // суммарное количество
-  has: (id: string) => boolean;
-  toggle: (id: string) => void; // добавить 1 / убрать
-  setQty: (id: string, qty: number) => void;
-  remove: (id: string) => void;
+  items: CartLineItem[];
+  count: number;
+  has: (variantId: string) => boolean;
+  add: (snap: CartSnapshot, qty?: number) => void;
+  toggle: (snap: CartSnapshot) => void;
+  setQty: (variantId: string, qty: number) => void;
+  remove: (variantId: string) => void;
   clear: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartLineItem[]>([]);
 
   const value = useMemo<CartContextValue>(() => ({
     items,
     count: items.reduce((s, i) => s + i.qty, 0),
-    has: (id) => items.some((i) => i.productId === id),
-    toggle: (id) =>
+    has: (variantId) => items.some((i) => i.variantId === variantId),
+    add: (snap, qty = 1) =>
+      setItems((prev) => {
+        const found = prev.find((i) => i.variantId === snap.variantId);
+        return found
+          ? prev.map((i) => (i.variantId === snap.variantId ? { ...i, qty: i.qty + qty } : i))
+          : [...prev, { ...snap, qty }];
+      }),
+    toggle: (snap) =>
       setItems((prev) =>
-        prev.some((i) => i.productId === id)
-          ? prev.filter((i) => i.productId !== id)
-          : [...prev, { productId: id, qty: 1 }],
+        prev.some((i) => i.variantId === snap.variantId)
+          ? prev.filter((i) => i.variantId !== snap.variantId)
+          : [...prev, { ...snap, qty: 1 }],
       ),
-    setQty: (id, qty) =>
-      setItems((prev) =>
-        prev.map((i) => (i.productId === id ? { ...i, qty: Math.max(1, qty) } : i)),
-      ),
-    remove: (id) => setItems((prev) => prev.filter((i) => i.productId !== id)),
+    setQty: (variantId, qty) =>
+      setItems((prev) => prev.map((i) => (i.variantId === variantId ? { ...i, qty: Math.max(1, qty) } : i))),
+    remove: (variantId) => setItems((prev) => prev.filter((i) => i.variantId !== variantId)),
     clear: () => setItems([]),
   }), [items]);
 

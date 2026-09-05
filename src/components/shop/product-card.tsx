@@ -1,16 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useCart } from "./cart-provider";
+import { useCart, pickVariant, toSnapshot } from "./cart-provider";
 import { ProductThumb } from "./product-thumb";
 import { IconCart, IconCheck, IconPlus } from "./icons";
 import { formatPrice } from "@/lib/format";
-import { inStock, type Product } from "@/lib/test-data";
+import { type Product } from "@/lib/test-data";
 
 export function ProductCard({ product }: { product: Product }) {
   const cart = useCart();
-  const added = cart.has(product.id);
-  const available = inStock(product);
+  const variant = pickVariant(product);
+  const available = !!variant && variant.stock > 0;
+  const snap = variant ? toSnapshot(product, variant) : null;
+  const added = snap ? cart.has(snap.variantId) : false;
   const discount =
     product.oldPrice && product.oldPrice > product.price
       ? Math.round((1 - product.price / product.oldPrice) * 100)
@@ -35,11 +37,11 @@ export function ProductCard({ product }: { product: Product }) {
             {product.oldPrice && <span className="price-old">{formatPrice(product.oldPrice)}</span>}
           </div>
 
-          {available ? (
+          {available && snap ? (
             <span className="cart-toggle">
               <button
                 type="button"
-                onClick={() => cart.toggle(product.id)}
+                onClick={() => cart.toggle(snap)}
                 aria-pressed={added}
                 aria-label={added ? "Товар добавлен в корзину" : "Добавить товар в корзину"}
                 className={`ibtn ibtn-cart${added ? " is-in" : ""}`}

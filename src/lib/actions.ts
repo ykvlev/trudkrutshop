@@ -6,10 +6,11 @@
 // Позже: те же функции добавляют запись в БД (Prisma) и боевые интеграции —
 // сигнатуры и вызовы на клиенте не меняются.
 
-import { computeTotals, round2, type CartLine, type Promo } from "@/domain/pricing";
+import { computeTotals, round2, type Promo } from "@/domain/pricing";
 import { getDadataProvider, type CompanyDetails } from "@/integrations/dadata";
 import { getDeliveryProvider, type DeliveryQuote } from "@/integrations/delivery";
 import { getPaymentProvider } from "@/integrations/payment";
+import { createOrderDb } from "@/lib/actions-db";
 import { enqueue } from "@/jobs";
 
 const LEGAL_DISCOUNT = 0.1; // условие уточняет заказчик
@@ -48,9 +49,18 @@ export async function calcDelivery(input: {
   });
 }
 
+export type PlaceOrderLine = {
+  variantId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  categorySlug?: string;
+};
+
 export type PlaceOrderInput = {
-  lines: CartLine[];
+  lines: PlaceOrderLine[];
   promoCode?: string;
+  deliveryType: "SAFEROUTE" | "PICKUP";
   deliveryCost: number;
   legal: boolean;
   inn?: string;
@@ -67,14 +77,30 @@ export type PlaceOrderResult = {
 /** Оформление заказа: расчёт итогов, для физлица — создание платежа (Точка),
  * для юрлица — счёт. Резервирование остатка и запись в БД добавятся с Prisma. */
 export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResult> {
-  const promoRes = input.promoCode ? await validatePromo(input.promoCode) : null;
-  const promo = promoRes && promoRes.ok ? promoRes.promo : null;
+  let number: string;
+  let total: number;
 
-  const t = computeTotals({ lines: input.lines, promo, deliveryCost: input.deliveryCost });
-  const legalDiscount = input.legal ? round2((t.subtotal - t.discount) * LEGAL_DISCOUNT) : 0;
-  const total = round2(t.total - legalDiscount);
-
-  const number = "ТКШ-" + String(Date.now()).slice(-6);
+  try {
+    // Основной путь: создаём заказ в БД (снимок цен, бронь остатка, история).
+    const order = await createOrderDb({
+      lines: input.lines.map((l) => ({ variantId: l.variantId, quantity: l.quantity })),
+      customerType: input.legal ? "LEGAL" : "PHYSICAL",
+      contact: input.contact,
+      promoCode: input.promoCode,
+      deliveryType: input.deliveryType,
+      deliveryCost: input.deliveryCost,
+    });
+    number = order.number;
+    total = order.total;
+  } catch {
+    // Фолбэк без БД (демо-режим на тестовых данных): расчёт без записи.
+    const promoRes = input.promoCode ? await validatePromo(input.promoCode) : null;
+    const promo = promoRes && promoRes.ok ? promoRes.promo : null;
+    const t = computeTotals({ lines: input.lines, promo, deliveryCost: input.deliveryCost });
+    const legalDiscount = input.legal ? round2((t.subtotal - t.discount) * LEGAL_DISCOUNT) : 0;
+    total = round2(t.total - legalDiscount);
+    number = "ТКШ-" + String(Date.now()).slice(-6);
+  }
 
   // Письмо с составом заказа — в очередь (сейчас no-op, позже pg-boss).
   await enqueue("email.order-confirmation", { orderId: number });

@@ -2,6 +2,7 @@
 // Названия и цены — с живого trudkrutshop.ru, чтобы каркас читался реалистично.
 
 export type Variant = {
+  id?: string; // из БД (cuid); в тестовых данных отсутствует — используется sku
   sku: string;
   size?: string;
   color?: string;

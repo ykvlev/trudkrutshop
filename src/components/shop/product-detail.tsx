@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useCart } from "./cart-provider";
+import { useCart, toSnapshot } from "./cart-provider";
 import { ProductThumb } from "./product-thumb";
 import { IconCheck, IconClose, IconPlus } from "./icons";
 import { formatPrice } from "@/lib/format";
@@ -12,7 +12,6 @@ const distinct = (xs: (string | undefined)[]): string[] =>
 
 export function ProductDetail({ product }: { product: Product }) {
   const cart = useCart();
-  const added = cart.has(product.id);
 
   const sizes = useMemo(() => distinct(product.variants.map((v) => v.size)), [product]);
   const colors = useMemo(() => distinct(product.variants.map((v) => v.color)), [product]);
@@ -35,6 +34,14 @@ export function ProductDetail({ product }: { product: Product }) {
     (sizes.length > 0 && !size) || (colors.length > 0 && !color) || (prints.length > 0 && !print);
   const stock = selected?.stock ?? 0;
   const canBuy = !needsChoice && stock > 0;
+  const selVariantId = selected ? (selected.id ?? selected.sku) : undefined;
+  const added = selVariantId ? cart.has(selVariantId) : false;
+
+  const onCart = () => {
+    if (!selected || !selVariantId) return;
+    if (added) cart.remove(selVariantId);
+    else cart.add(toSnapshot(product, selected), qty);
+  };
 
   return (
     <div className="pdp">
@@ -119,7 +126,7 @@ export function ProductDetail({ product }: { product: Product }) {
             className={`btn btn-l ${added ? "btn-outline" : "btn-blue"}`}
             style={{ flex: 1, minWidth: 200 }}
             disabled={!canBuy && !added}
-            onClick={() => cart.toggle(product.id)}
+            onClick={onCart}
           >
             {added ? <IconCheck width={18} height={18} /> : <IconPlus width={18} height={18} />}
             {added ? "В корзине" : "В корзину"}

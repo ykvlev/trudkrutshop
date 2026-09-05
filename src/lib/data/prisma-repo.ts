@@ -26,6 +26,7 @@ function mapCategory(c: DbCategory & { parent?: DbCategory | null }): Category {
 
 function mapVariant(v: DbVariant): Variant {
   return {
+    id: v.id,
     sku: v.sku,
     size: v.size ?? undefined,
     color: v.color ?? undefined,

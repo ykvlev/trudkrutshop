@@ -7,7 +7,6 @@ import { ProductThumb } from "@/components/shop/product-thumb";
 import { IconClose } from "@/components/shop/icons";
 import { formatPrice } from "@/lib/format";
 import { computeTotals, round2, type Promo } from "@/domain/pricing";
-import { products } from "@/lib/test-data";
 import { lookupCompanyByInn, placeOrder, validatePromo } from "@/lib/actions";
 
 const DELIVERY = [
@@ -22,9 +21,7 @@ type Entity = { inn: string; name: string; kpp: string; ogrn: string; address: s
 
 export default function CartPage() {
   const cart = useCart();
-  const lines = cart.items
-    .map((i) => ({ item: i, product: products.find((p) => p.id === i.productId)! }))
-    .filter((x) => x.product);
+  const items = cart.items;
 
   const [promoInput, setPromoInput] = useState("");
   const [promo, setPromo] = useState<{ code: string; promo: Promo } | null>(null);
@@ -38,15 +35,11 @@ export default function CartPage() {
   const deliveryCost = DELIVERY.find((d) => d.code === delivery)?.cost ?? 0;
 
   const totals = useMemo(() => {
-    const cl = lines.map(({ item, product }) => ({
-      price: product.price,
-      quantity: item.qty,
-      categorySlug: product.category,
-    }));
+    const cl = items.map((i) => ({ price: i.price, quantity: i.qty, categorySlug: i.category }));
     const t = computeTotals({ lines: cl, promo: promo?.promo ?? null, deliveryCost });
     const legalDiscount = legal && entity ? round2((t.subtotal - t.discount) * LEGAL_DISCOUNT) : 0;
     return { ...t, legalDiscount, total: round2(t.total - legalDiscount) };
-  }, [lines, promo, deliveryCost, legal, entity]);
+  }, [items, promo, deliveryCost, legal, entity]);
 
   const applyPromo = async () => {
     const res = await validatePromo(promoInput);
@@ -61,10 +54,12 @@ export default function CartPage() {
   };
 
   const submit = async (asLegal: boolean) => {
-    const cl = lines.map(({ item, product }) => ({ price: product.price, quantity: item.qty, categorySlug: product.category }));
     const res = await placeOrder({
-      lines: cl,
+      lines: items.map((i) => ({
+        variantId: i.variantId, name: i.name, price: i.price, quantity: i.qty, categorySlug: i.category,
+      })),
       promoCode: promo?.code,
+      deliveryType: delivery === "pickup" ? "PICKUP" : "SAFEROUTE",
       deliveryCost,
       legal: asLegal,
       inn: entity?.inn,
@@ -76,7 +71,7 @@ export default function CartPage() {
 
   if (done) return <OrderDone done={done} entity={entity} />;
 
-  if (lines.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="wrap" style={{ padding: "48px 0 80px", textAlign: "center" }}>
         <h1>Корзина пуста</h1>
@@ -97,28 +92,28 @@ export default function CartPage() {
               <tr><th>Товар</th><th>Цена</th><th>Кол-во</th><th>Сумма</th><th></th></tr>
             </thead>
             <tbody>
-              {lines.map(({ item, product }) => (
-                <tr key={product.id}>
+              {items.map((i) => (
+                <tr key={i.variantId}>
                   <td>
                     <div className="ci">
-                      <div className="ci-img"><ProductThumb label={product.name} /></div>
+                      <div className="ci-img"><ProductThumb label={i.name} /></div>
                       <div>
-                        <Link href={`/product/${product.slug}`} className="ci-n">{product.name}</Link>
-                        <div className="ci-v">{product.variants[0]?.sku}</div>
+                        <Link href={`/product/${i.slug}`} className="ci-n">{i.name}</Link>
+                        <div className="ci-v">{i.variantLabel ? `${i.variantLabel} · ` : ""}{i.sku}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="num">{formatPrice(product.price)}</td>
+                  <td className="num">{formatPrice(i.price)}</td>
                   <td>
                     <div className="qty">
-                      <button type="button" onClick={() => cart.setQty(product.id, item.qty - 1)} aria-label="Меньше">−</button>
-                      <span className="num">{item.qty}</span>
-                      <button type="button" onClick={() => cart.setQty(product.id, item.qty + 1)} aria-label="Больше">+</button>
+                      <button type="button" onClick={() => cart.setQty(i.variantId, i.qty - 1)} aria-label="Меньше">−</button>
+                      <span className="num">{i.qty}</span>
+                      <button type="button" onClick={() => cart.setQty(i.variantId, i.qty + 1)} aria-label="Больше">+</button>
                     </div>
                   </td>
-                  <td className="num">{formatPrice(product.price * item.qty)}</td>
+                  <td className="num">{formatPrice(i.price * i.qty)}</td>
                   <td>
-                    <button type="button" className="ibtn" aria-label="Удалить" onClick={() => cart.remove(product.id)}>
+                    <button type="button" className="ibtn" aria-label="Удалить" onClick={() => cart.remove(i.variantId)}>
                       <IconClose width={18} height={18} />
                     </button>
                   </td>
