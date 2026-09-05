@@ -14,6 +14,7 @@ export type Product = {
   id: string;
   slug: string;
   name: string;
+  description?: string;
   /** slug конечной категории */
   category: string;
   price: number;

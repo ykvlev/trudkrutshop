@@ -44,6 +44,7 @@ function mapProduct(
     id: p.id,
     slug: p.slug,
     name: p.name,
+    description: p.description ?? undefined,
     category: p.category.slug,
     price: Number(p.basePrice),
     oldPrice: p.oldPrice != null ? Number(p.oldPrice) : undefined,

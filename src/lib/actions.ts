@@ -10,7 +10,7 @@ import { computeTotals, round2, type Promo } from "@/domain/pricing";
 import { getDadataProvider, type CompanyDetails } from "@/integrations/dadata";
 import { getDeliveryProvider, type DeliveryQuote } from "@/integrations/delivery";
 import { getPaymentProvider } from "@/integrations/payment";
-import { createOrderDb } from "@/lib/actions-db";
+import { createOrderDb, createCertificateDb } from "@/lib/actions-db";
 import { enqueue } from "@/jobs";
 
 const LEGAL_DISCOUNT = 0.1; // условие уточняет заказчик
@@ -139,11 +139,24 @@ export async function createCertificateOrder(input: {
   sendAt: string | null;
 }): Promise<{ ok: true; amount: number } | { ok: false; error: string }> {
   if (input.amount < 100) return { ok: false, error: "Минимальный номинал — 100 ₽" };
-  // Позже: создать Certificate (status PENDING) и пробить чек-аванс; сюда придёт
-  // реальный id. Отложенную отправку получателю ставим в очередь на sendAt.
+
+  let certificateId = "pending";
+  try {
+    const cert = await createCertificateDb({
+      amount: input.amount,
+      recipientEmail: input.recipientEmail,
+      recipientPhone: input.recipientPhone,
+      sendAt: input.sendAt,
+    });
+    certificateId = cert.id;
+  } catch {
+    // Фолбэк без БД — просто ставим задачу-заглушку.
+  }
+
+  // Отложенная отправка получателю (сразу после оплаты либо в назначенное время).
   await enqueue(
     "certificate.send",
-    { certificateId: "pending" },
+    { certificateId },
     input.sendAt ? { startAfter: new Date(input.sendAt) } : undefined,
   );
   return { ok: true, amount: input.amount };

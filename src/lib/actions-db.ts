@@ -143,6 +143,33 @@ export async function upsertProductDb(input: {
     : prisma.product.create({ data: { ...data, publishedAt: new Date() } });
 }
 
+function genCertCode(): string {
+  const g = () => Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `RSO-${g()}-${g()}-${g()}`;
+}
+
+/** Покупка сертификата: создаём запись (аванс по 54-ФЗ), баланс = номинал,
+ * статус PENDING; отложенную отправку получателю ставит в очередь вызывающий. */
+export async function createCertificateDb(input: {
+  amount: number;
+  recipientEmail?: string;
+  recipientPhone?: string;
+  sendAt?: string | null;
+}) {
+  const cert = await prisma.certificate.create({
+    data: {
+      code: genCertCode(),
+      nominal: input.amount,
+      balance: input.amount,
+      recipientEmail: input.recipientEmail || null,
+      recipientPhone: input.recipientPhone || null,
+      sendAt: input.sendAt ? new Date(input.sendAt) : null,
+      status: "PENDING",
+    },
+  });
+  return { id: cert.id, code: cert.code };
+}
+
 /** Отмена брони по таймауту неоплаты (запускается фоновой задачей pg-boss). */
 export async function releaseExpiredReservations(olderThanMinutes = 30) {
   const cutoff = new Date(Date.now() - olderThanMinutes * 60_000);
