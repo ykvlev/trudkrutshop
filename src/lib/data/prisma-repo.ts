@@ -142,6 +142,24 @@ export async function getBoughtWith(p: Product, limit = 8): Promise<Product[]> {
   return prods.map(mapProduct);
 }
 
+export async function searchProducts(q: string): Promise<Product[]> {
+  const term = q.trim();
+  if (!term) return [];
+  const prods = await prisma.product.findMany({
+    where: {
+      isActive: true,
+      OR: [
+        { name: { contains: term, mode: "insensitive" } },
+        { description: { contains: term, mode: "insensitive" } },
+        { variants: { some: { sku: { contains: term, mode: "insensitive" } } } },
+      ],
+    },
+    include: productInclude,
+    take: 40,
+  });
+  return prods.map(mapProduct);
+}
+
 export async function getAllProducts(): Promise<Product[]> {
   const prods = await prisma.product.findMany({ where: { isActive: true }, include: productInclude });
   return prods.map(mapProduct);

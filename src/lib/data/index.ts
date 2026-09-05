@@ -24,6 +24,7 @@ export const getProduct = source.getProduct;
 export const getSimilar = source.getSimilar;
 export const getBoughtWith = source.getBoughtWith;
 export const getAllProducts = source.getAllProducts;
+export const searchProducts = source.searchProducts;
 export const getBestsellers = source.getBestsellers;
 export const getNew = source.getNew;
 

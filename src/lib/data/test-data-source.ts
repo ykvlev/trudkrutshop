@@ -31,6 +31,16 @@ export async function getSimilar(p: Product): Promise<Product[]> {
 export async function getBoughtWith(p: Product): Promise<Product[]> {
   return td.boughtWith(p);
 }
+export async function searchProducts(q: string): Promise<Product[]> {
+  const t = q.trim().toLowerCase();
+  if (!t) return [];
+  return td.products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(t) ||
+      p.variants.some((v) => v.sku.toLowerCase().includes(t)),
+  );
+}
+
 export async function getAllProducts(): Promise<Product[]> {
   return td.products;
 }
