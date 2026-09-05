@@ -10,7 +10,7 @@ import { computeTotals, round2, type Promo } from "@/domain/pricing";
 import { getDadataProvider, type CompanyDetails } from "@/integrations/dadata";
 import { getDeliveryProvider, type DeliveryQuote } from "@/integrations/delivery";
 import { getPaymentProvider } from "@/integrations/payment";
-import { createOrderDb, createCertificateDb } from "@/lib/actions-db";
+import { createOrderDb, createCertificateDb, setOrderPayment } from "@/lib/actions-db";
 import { enqueue } from "@/jobs";
 
 const LEGAL_DISCOUNT = 0.1; // условие уточняет заказчик
@@ -79,6 +79,7 @@ export type PlaceOrderResult = {
 export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResult> {
   let number: string;
   let total: number;
+  let orderId: string | undefined;
 
   try {
     // Основной путь: создаём заказ в БД (снимок цен, бронь остатка, история).
@@ -92,6 +93,7 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
     });
     number = order.number;
     total = order.total;
+    orderId = order.id;
   } catch {
     // Фолбэк без БД (демо-режим на тестовых данных): расчёт без записи.
     const promoRes = input.promoCode ? await validatePromo(input.promoCode) : null;
@@ -126,6 +128,11 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
       paymentSubject: "commodity",
     })),
   });
+
+  // Привязываем платёж к заказу, чтобы вебхук об оплате нашёл его по paymentId.
+  if (orderId) {
+    try { await setOrderPayment(orderId, payment.paymentId); } catch {}
+  }
 
   return { number, total, kind: "physical", paymentUrl: payment.paymentUrl };
 }

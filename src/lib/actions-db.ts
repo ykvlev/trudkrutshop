@@ -123,6 +123,12 @@ export async function changeOrderStatusDb(orderId: string, to: OrderStatus, admi
   });
 }
 
+/** Привязать id платежа к заказу (после создания платежа в Точке) —
+ * чтобы вебхук об оплате нашёл заказ по paymentId. */
+export async function setOrderPayment(orderId: string, paymentId: string) {
+  await prisma.order.update({ where: { id: orderId }, data: { paymentId } });
+}
+
 /** Ручное движение по складу из админки (приёмка/списание/возврат). */
 export async function recordStockMovementDb(input: {
   variantId: string; delta: number; reason: StockReason; adminUserId?: string; comment?: string;

@@ -70,6 +70,7 @@ jobs:
           --health-retries 5
     env:
       DATABASE_URL: "postgresql://tksh:tksh@localhost:5432/tksh_test?schema=public"
+      TEST_DATABASE_URL: "postgresql://tksh:tksh@localhost:5432/tksh_test?schema=public"
     steps:
       - uses: actions/checkout@v4
 
@@ -85,3 +86,6 @@ jobs:
 
       - name: Сид тестовыми данными
         run: npm run db:seed
+
+      - name: Интеграционные тесты (БД)
+        run: npm run test:integration
