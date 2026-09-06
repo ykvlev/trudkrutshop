@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Импортированные ассеты дизайн-системы РСО (не код приложения).
+    "_rso_ds/**",
+    "_dsx/**",
   ]),
 ]);
 

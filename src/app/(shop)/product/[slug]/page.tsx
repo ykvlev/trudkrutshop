@@ -21,6 +21,12 @@ export async function generateMetadata(props: PageProps<"/product/[slug]">): Pro
   return {
     title: product.name,
     description: product.description ?? `${product.name} — купить в магазине отрядного мерча ТрудКрутШоп.`,
+    alternates: { canonical: `/product/${slug}` },
+    openGraph: {
+      type: "website",
+      title: product.name,
+      url: `/product/${slug}`,
+    },
   };
 }
 
@@ -36,23 +42,47 @@ export default async function ProductPage(props: PageProps<"/product/[slug]">) {
     getBoughtWith(product),
   ]);
 
+  const base = "https://trudkrutshop.ru";
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
+    description: product.description,
     category: category?.name,
     sku: product.variants[0]?.sku,
     offers: {
       "@type": "Offer",
       price: product.price,
       priceCurrency: "RUB",
+      url: `${base}/product/${slug}`,
       availability: inStock(product) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
     },
+  };
+
+  // Хлебные крошки для поисковиков.
+  const crumbItems = [
+    { name: "Главная", url: base },
+    ...trail.map((c, idx) => ({
+      name: c.name,
+      url: `${base}/catalog/${trail.slice(0, idx + 1).map((t) => t.slug).join("/")}`,
+    })),
+    { name: product.name, url: `${base}/product/${slug}` },
+  ];
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: crumbItems.map((it, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: it.name,
+      item: it.url,
+    })),
   };
 
   return (
     <div className="wrap" style={{ paddingTop: 24, paddingBottom: 60 }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
 
       <nav aria-label="Хлебные крошки" className="crumbs">
         <Link href="/">Главная</Link>

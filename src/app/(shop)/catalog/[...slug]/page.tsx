@@ -20,6 +20,7 @@ export async function generateMetadata(props: PageProps<"/catalog/[...slug]">): 
   return {
     title: cat.name,
     description: cat.seoText ?? `${cat.name} — отрядный мерч РСО в магазине ТрудКрутШоп.`,
+    alternates: { canonical: `/catalog/${slug.join("/")}` },
   };
 }
 
@@ -34,8 +35,24 @@ export default async function CategoryPage(props: PageProps<"/catalog/[...slug]"
   const children = leaf ? [] : await getChildren(current);
   const childCounts = await Promise.all(children.map((k) => getCategoryProducts(k.slug)));
 
+  const base = "https://trudkrutshop.ru";
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Главная", item: base },
+      ...trail.map((c, idx) => ({
+        "@type": "ListItem",
+        position: idx + 2,
+        name: c.name,
+        item: `${base}/catalog/${trail.slice(0, idx + 1).map((t) => t.slug).join("/")}`,
+      })),
+    ],
+  };
+
   return (
     <div className="wrap" style={{ paddingTop: 24, paddingBottom: 60 }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <nav aria-label="Хлебные крошки" className="crumbs">
         <Link href="/">Главная</Link>
         {trail.map((c, idx) => {

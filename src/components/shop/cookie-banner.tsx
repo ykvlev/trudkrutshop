@@ -11,6 +11,9 @@ export function CookieBanner() {
 
   useEffect(() => {
     try {
+      // localStorage доступен только на клиенте после монтирования, поэтому
+      // решение о показе принимаем здесь (иначе — рассинхрон гидрации).
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (!localStorage.getItem(KEY)) setShow(true);
     } catch {
       /* приватный режим — просто не показываем повторно */
