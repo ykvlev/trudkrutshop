@@ -233,6 +233,9 @@ h1, h2, h3, [id] { scroll-margin-top: 120px; }
 .ph { width: 100%; background: var(--rso-grey); border-radius: 20px; display: grid; place-items: center; position: relative; overflow: hidden; }
 .ph::after { content: ''; position: absolute; inset: 22%; background: rgba(8,4,255,.07); -webkit-mask: url(/brand/mark-trudkrut.svg) center/contain no-repeat; mask: url(/brand/mark-trudkrut.svg) center/contain no-repeat; }
 .ph-cap { position: relative; z-index: 1; font-family: var(--font-core); font-size: 12px; text-transform: uppercase; color: #9a9a9a; }
+.ph-photo { padding: 0; }
+.ph-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ph-photo::after { content: none; }
 
 /* Скелетоны загрузки (shimmer) */
 .sk { background: linear-gradient(90deg, var(--rso-grey) 25%, #ececf6 37%, var(--rso-grey) 63%); background-size: 400% 100%; animation: sk 1.4s ease infinite; border-radius: 12px; }

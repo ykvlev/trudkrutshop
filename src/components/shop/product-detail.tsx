@@ -47,7 +47,7 @@ export function ProductDetail({ product }: { product: Product }) {
     <div className="pdp">
       {/* Галерея */}
       <div>
-        <ProductThumb label={product.name} className={undefined} />
+        <ProductThumb label={product.name} category={product.category} className={undefined} />
         <div className="pdp-thumbs">
           {[0, 1, 2, 3].map((n) => (
             <button key={n} type="button" className={n === img ? "is-on" : ""} onClick={() => setImg(n)} aria-label={`Ракурс ${n + 1}`}>

@@ -133,7 +133,7 @@ export default function CartPage() {
                 <tr key={i.variantId}>
                   <td>
                     <div className="ci">
-                      <div className="ci-img"><ProductThumb label={i.name} /></div>
+                      <div className="ci-img"><ProductThumb label={i.name} category={i.category} /></div>
                       <div>
                         <Link href={`/product/${i.slug}`} className="ci-n">{i.name}</Link>
                         <div className="ci-v">{i.variantLabel ? `${i.variantLabel} · ` : ""}{i.sku}</div>
