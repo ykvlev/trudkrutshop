@@ -32,10 +32,16 @@ function triadToWords(n: number, feminine: boolean): string {
 }
 
 export function rublesInWords(amount: number): string {
-  const rub = Math.floor(Math.abs(amount));
-  const kop = Math.round((Math.abs(amount) - rub) * 100);
+  // Считаем в копейках, чтобы округление корректно переносилось в рубли
+  // (99.999 → 100 руб. 00 коп., а не 99 руб. 100 коп.).
+  const totalKop = Math.round(Math.abs(amount) * 100);
+  const rub = Math.floor(totalKop / 100);
+  const kop = totalKop % 100;
 
-  if (rub === 0) return `Ноль рублей ${String(kop).padStart(2, "0")} копеек`;
+  if (rub === 0) {
+    const kw = plural(kop, ["копейка", "копейки", "копеек"]);
+    return `Ноль рублей ${String(kop).padStart(2, "0")} ${kw}`;
+  }
 
   const triads: string[] = [];
   const millions = Math.floor(rub / 1_000_000);
