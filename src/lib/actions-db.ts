@@ -8,6 +8,7 @@
 import { prisma } from "@/lib/prisma";
 import { computeTotals, round2, type CartLine } from "@/domain/pricing";
 import { recordMovement, reserve, shipReservation } from "@/domain/stock";
+import { enqueue } from "@/jobs";
 import type { CustomerType, OrderStatus, StockReason } from "@prisma/client";
 
 const LEGAL_DISCOUNT = 0.1;
@@ -120,6 +121,13 @@ export async function changeOrderStatusDb(orderId: string, to: OrderStatus, admi
         statusHistory: { create: { fromStatus: order.status, toStatus: to, adminUserId } },
       },
     });
+
+    return order;
+  }).then(async (order) => {
+    // Письмо об отправке — в очередь (после коммита; ошибка очереди не критична).
+    if (to === "SHIPPED" && order.status !== "SHIPPED") {
+      await enqueue("email.order-shipped", { orderId, trackNumber: order.trackNumber ?? "" });
+    }
   });
 }
 
