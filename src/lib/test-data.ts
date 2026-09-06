@@ -35,23 +35,17 @@ export type Category = {
   seoText?: string;
 };
 
+// Описания категорий (seoText) заполнит заказчик — не выдумываем характеристики.
 export const categories: Category[] = [
-  { slug: "futbolki", name: "Футболки", seoText:
-    "Футболки Российских Студенческих Отрядов: отрядная символика, плотный хлопок, прямой крой. Размеры от XS до XXL." },
-  { slug: "hudi", name: "Худи", seoText:
-    "Тёплые худи с начёсом и вышивкой РСО. Унисекс-посадка, размеры от XS до XXL." },
+  { slug: "futbolki", name: "Футболки" },
+  { slug: "hudi", name: "Худи" },
   { slug: "znachki", name: "Значки" },
-  { slug: "kirpichi", name: "Кирпичи", parent: "znachki", seoText:
-    "Коллекционные значки-кирпичи РСО по годам. Металл, мягкая эмаль, цанговое крепление." },
-  { slug: "piny", name: "Пины", parent: "znachki", seoText:
-    "Пины с отрядными фразами и символикой. Металл, твёрдая эмаль." },
-  { slug: "derevyannye", name: "Деревянные значки", parent: "znachki", seoText:
-    "Деревянные значки с лазерной гравировкой. Берёзовая фанера, булавка." },
+  { slug: "kirpichi", name: "Кирпичи", parent: "znachki" },
+  { slug: "piny", name: "Пины", parent: "znachki" },
+  { slug: "derevyannye", name: "Деревянные значки", parent: "znachki" },
   { slug: "aksessuary", name: "Аксессуары" },
-  { slug: "noski", name: "Носки", parent: "aksessuary", seoText:
-    "Носки ТрудКрут с жаккардовым узором. Хлопок, безразмерные и по размерам." },
-  { slug: "shopery", name: "Шоперы", parent: "aksessuary", seoText:
-    "Шоперы из плотного хлопка с принтами РСО." },
+  { slug: "noski", name: "Носки", parent: "aksessuary" },
+  { slug: "shopery", name: "Шоперы", parent: "aksessuary" },
 ];
 
 export const products: Product[] = [
