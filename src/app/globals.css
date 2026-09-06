@@ -92,6 +92,8 @@ h1 { font-size: 44px; line-height: 1.1; margin: 0 0 20px; }
 h2 { font-size: 30px; line-height: 1.15; }
 h3 { font-size: 20px; line-height: 1.15; }
 p { margin: 0 0 12px; text-wrap: pretty; }
+/* Отступ под sticky-шапку при переходе по якорю/скролле к заголовку. */
+h1, h2, h3, [id] { scroll-margin-top: 120px; }
 :focus-visible { outline: 2px solid var(--rso-blue); outline-offset: 2px; }
 ::selection { background: var(--rso-blue); color: #fff; }
 

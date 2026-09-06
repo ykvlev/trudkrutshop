@@ -1,7 +1,9 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Product, Variant } from "@/lib/test-data";
+
+const STORAGE_KEY = "tksh-cart";
 
 // Корзина на уровне ВАРИАНТА (размер × цвет × принт) со снимком данных позиции.
 // Снимок делает корзину самодостаточной: клиент не ходит в БД за названием/ценой,
@@ -60,6 +62,37 @@ const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartLineItem[]>([]);
+  const mounted = useRef(false); // чтобы не затереть хранилище пустышкой на маунте
+
+  // Восстановление корзины из localStorage после гидратации. Именно в effect
+  // (не в инициализаторе useState): сервер рендерит пустую корзину, чтение из
+  // localStorage на клиенте после маунта не ломает гидратацию.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- восстановление после маунта, безопасно для гидратации
+        if (Array.isArray(parsed)) setItems(parsed);
+      }
+    } catch {
+      // Приватный режим / выключенное хранилище — работаем без персиста.
+    }
+  }, []);
+
+  // Сохранение при изменениях. Первый (монтажный) вызов пропускаем, иначе
+  // пустой initial-state затрёт корзину в хранилище до её восстановления.
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    } catch {
+      /* игнорируем недоступность хранилища */
+    }
+  }, [items]);
 
   const value = useMemo<CartContextValue>(() => ({
     items,
