@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { IconTelegram, IconVk } from "./icons";
+import { Icon } from "@/components/ui/icon";
 import { topCategories } from "@/lib/test-data";
 
 const buyerLinks = [
@@ -42,9 +43,9 @@ export function SiteFooter() {
 
           <div className="ftr-c">
             <span className="label">Магазин</span>
-            <span>Москва, Лефортовский пер., 8 стр. 1</span>
+            <span className="ftr-line"><Icon name="LinearEssentionalUIPin" size={18} /> Москва, Лефортовский пер., 8 стр. 1</span>
             <span>Пн–Пт 10:00–20:00, выходные по согласованию</span>
-            <a href="mailto:rso.simv@mail.ru">rso.simv@mail.ru</a>
+            <a href="mailto:rso.simv@mail.ru" className="ftr-line"><Icon name="LinearMessagesConversationPlain" size={18} /> rso.simv@mail.ru</a>
             <p className="ftr-req">
               АНО ДПО «РСО-РАЗВИТИЕ» · ИНН 7743351523 · КПП 770101001 · ОГРН 1207700490249 · 105066, г. Москва, ул. Доброслободская, д. 6 стр. 1
             </p>

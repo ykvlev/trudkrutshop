@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { HeroSlider } from "@/components/shop/hero-slider";
 import { ProductCard } from "@/components/shop/product-card";
+import { Icon } from "@/components/ui/icon";
 import { currentSeed, seededShuffle } from "@/lib/format";
 import { getAllProducts, getBestsellers, getNew, type Product } from "@/lib/data";
 
@@ -11,9 +12,9 @@ export const dynamic = "force-dynamic";
 const cols4 = { "--cols": 4 } as CSSProperties;
 
 const features = [
-  { t: "Доставка по всей России", s: "SafeRoute: пункты выдачи и курьер" },
-  { t: "Оплата картой и по счёту", s: "Для физлиц и организаций" },
-  { t: "Официальный мерч РСО", s: "Символика Российских Студенческих Отрядов" },
+  { icon: "LinearEssentionalUIDelivery", t: "Доставка по всей России", s: "SafeRoute: пункты выдачи и курьер" },
+  { icon: "LinearEssentionalUICheckCircle", t: "Оплата картой и по счёту", s: "Для физлиц и организаций" },
+  { icon: "LinearEssentionalUICrownStar", t: "Официальный мерч РСО", s: "Символика Российских Студенческих Отрядов" },
 ];
 
 export default async function HomePage() {
@@ -27,6 +28,7 @@ export default async function HomePage() {
       <div className="strip">
         {features.map((f) => (
           <div className="strip-i" key={f.t}>
+            <Icon name={f.icon} size={30} style={{ color: "var(--rso-blue)", flexShrink: 0 }} />
             <div>
               <div className="strip-t">{f.t}</div>
               <div className="strip-s">{f.s}</div>
