@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useCart } from "./cart-provider";
 import { IconCart, IconChevronDown, IconClose, IconMenu, IconSearch } from "./icons";
@@ -16,6 +16,21 @@ const infoNav = [
 export function SiteHeader() {
   const cart = useCart();
   const [open, setOpen] = useState(false);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  // Мобильное меню: закрытие по Escape, фокус на кнопку закрытия, блок прокрутки.
+  useEffect(() => {
+    if (!open) return;
+    closeRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
 
   return (
     <>
@@ -41,9 +56,10 @@ export function SiteHeader() {
                 <Link key={c.slug} href={`/catalog/${c.slug}`}>{c.name}</Link>
               ))}
             </nav>
-            <form action="/search" className="search">
-              <IconSearch width={18} height={18} />
-              <input name="q" placeholder="Поиск по магазину" aria-label="Поиск" />
+            <form action="/search" className="search" role="search">
+              <IconSearch width={18} height={18} aria-hidden="true" />
+              <input name="q" placeholder="Поиск по магазину" aria-label="Поиск по магазину" />
+              <button type="submit" className="sr-only">Найти</button>
             </form>
             <Link href="/cart" className="cart-btn" aria-label={`Корзина, товаров: ${cart.count}`}>
               <IconCart width={20} height={20} />
@@ -54,7 +70,7 @@ export function SiteHeader() {
 
           {/* Мобильная строка */}
           <div className="hdr-m">
-            <button type="button" className="ibtn" aria-label="Меню" onClick={() => setOpen(true)}>
+            <button type="button" className="ibtn" aria-label="Открыть меню" aria-expanded={open} aria-controls="mobile-drawer" onClick={() => setOpen(true)}>
               <IconMenu />
             </button>
             <Link href="/" className="hdr-logo" aria-label="ТрудКрутШоп — на главную">
@@ -96,10 +112,10 @@ export function SiteHeader() {
 
       {open && (
         <div className="mask" onClick={() => setOpen(false)}>
-          <div className="drawer" onClick={(e) => e.stopPropagation()}>
+          <div id="mobile-drawer" className="drawer" role="dialog" aria-modal="true" aria-label="Меню" onClick={(e) => e.stopPropagation()}>
             <div className="drawer-h">
               <span className="hdr-logo" style={{ color: "var(--rso-blue)" }}><span className="logo-mask lg" /></span>
-              <button type="button" className="ibtn" aria-label="Закрыть" onClick={() => setOpen(false)}>
+              <button ref={closeRef} type="button" className="ibtn" aria-label="Закрыть меню" onClick={() => setOpen(false)}>
                 <IconClose />
               </button>
             </div>

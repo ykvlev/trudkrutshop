@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/format";
@@ -444,9 +444,15 @@ function EditUser({ user, onClose, run }: { user: AdminData["users"][number] | n
 }
 
 function Modal({ title, wide, onClose, children }: { title: string; wide?: boolean; onClose: () => void; children: React.ReactNode }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   return (
     <div className="mask" onClick={onClose}>
-      <div className={`modal${wide ? " is-wide" : ""}`} onClick={(e) => e.stopPropagation()}>
+      <div className={`modal${wide ? " is-wide" : ""}`} role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
         <div className="modal-h"><h3>{title}</h3><button type="button" className="btn btn-ghost btn-s" onClick={onClose}>Закрыть</button></div>
         {children}
       </div>
