@@ -47,13 +47,6 @@ const NAV = [
 ] as const;
 type Section = (typeof NAV)[number]["id"];
 
-const plural = (n: number, a: string, b: string, c: string) => {
-  const m10 = n % 10, m100 = n % 100;
-  if (m10 === 1 && m100 !== 11) return a;
-  if (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return b;
-  return c;
-};
-
 export function AdminApp({ data }: { data: AdminData }) {
   const [section, setSection] = useState<Section>("overview");
   const router = useRouter();
@@ -177,7 +170,15 @@ function Orders({ data, run }: { data: AdminData; run: RunFn }) {
               <div className="abox">
                 <div className="abox-h">Статус</div>
                 <label className="fld">
-                  <select value={open.status} onChange={(e) => run(() => setOrderStatus(open.id, e.target.value as never))}>
+                  <select value={open.status} onChange={(e) => {
+                    const to = e.target.value;
+                    // Отмена и отгрузка — необратимы по последствиям: подтверждаем.
+                    const warn = to === "CANCELLED" ? "Отменить заказ? Бронь остатка будет снята."
+                      : to === "SHIPPED" ? "Отметить отправленным? Товар спишется со склада."
+                      : null;
+                    if (warn && !window.confirm(warn)) { e.target.value = open.status; return; }
+                    run(() => setOrderStatus(open.id, to as never));
+                  }}>
                     {STATUSES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
                   </select>
                 </label>
@@ -225,6 +226,9 @@ function Products({ data, run }: { data: AdminData; run: RunFn }) {
               <td><span className={`badge ${!r.active ? "badge-mute" : r.stock === 0 ? "badge-alert" : "badge-ok"}`}>{!r.active ? "Скрыт" : r.stock === 0 ? "Нет" : "В наличии"}</span></td>
             </tr>
           ))}
+          {filtered.length === 0 && (
+            <tr><td colSpan={5} className="hint" style={{ textAlign: "center", padding: 24 }}>Ничего не найдено</td></tr>
+          )}
         </tbody>
       </table>
       {edit && <EditProduct row={edit === "new" ? null : edit} cats={data.categories} onClose={() => setEdit(null)} run={run} />}
@@ -250,7 +254,8 @@ function EditProduct({ row, cats, onClose, run }: {
         <label className="fld"><span className="fld-l">Цена, ₽</span><input type="number" value={price} onChange={(e) => setPrice(Number(e.target.value))} /></label>
       </div>
       <label className="dopt" style={{ marginBottom: 16 }}><input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} /><span><span className="dopt-t">Показывать в каталоге</span></span></label>
-      <button type="button" className="btn btn-blue btn-l" disabled={!name} onClick={save}>Сохранить</button>
+      {(!name.trim() || price <= 0) && <p className="hint" style={{ marginTop: 0 }}>Укажите название и цену больше нуля.</p>}
+      <button type="button" className="btn btn-blue btn-l" disabled={!name.trim() || price <= 0} onClick={save}>Сохранить</button>
     </Modal>
   );
 }
