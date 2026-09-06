@@ -1,0 +1,18 @@
+# Caddy — обратный прокси с автоматическим TLS (Let's Encrypt).
+# SITE_ADDRESS задаётся в .env:
+#   - продакшен: SITE_ADDRESS=trudkrutshop.ru (Caddy сам выпустит сертификат)
+#   - локально:  SITE_ADDRESS=:80 (без TLS)
+
+{$SITE_ADDRESS} {
+	encode gzip zstd
+
+	# Проксируем на приложение Next.js внутри compose-сети.
+	reverse_proxy app:3000
+
+	# Заголовки безопасности задаёт само приложение (next.config.ts);
+	# здесь только логи.
+	log {
+		output stdout
+		format console
+	}
+}
