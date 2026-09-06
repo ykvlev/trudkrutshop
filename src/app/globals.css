@@ -139,7 +139,9 @@ h1, h2, h3, [id] { scroll-margin-top: 120px; }
 .search { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 0 16px; height: 44px; }
 .search input { background: none; border: 0; outline: none; color: #fff; width: 100%; }
 .search input::placeholder { color: rgba(255,255,255,.6); }
-.cart-btn { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 18px; border-radius: 20px; background: #fff; color: var(--rso-black); border: 0; cursor: pointer; font-family: var(--font-core); font-weight: 500; position: relative; }
+.cart-btn { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 18px; border-radius: 20px; background: #fff; border: 0; cursor: pointer; font-family: var(--font-core); font-weight: 500; position: relative; }
+/* Перебиваем белый цвет ссылок шапки (.hdr a) — текст на белой кнопке чёрный. */
+.hdr a.cart-btn { color: var(--rso-black); }
 .cart-btn svg { color: var(--rso-blue); }
 .cart-btn:hover { background: var(--rso-grey); }
 .cart-n { position: absolute; top: -6px; right: -6px; min-width: 22px; height: 22px; border-radius: 11px; background: var(--rso-black); color: #fff; font-size: 12px; display: grid; place-items: center; padding: 0 6px; }
