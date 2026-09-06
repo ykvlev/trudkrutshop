@@ -81,6 +81,14 @@ export default async function OrderPage(props: PageProps<"/order/[number]">) {
       {order.status === "AWAITING_PAYMENT" && (
         <p className="hint" style={{ marginTop: 16 }}>Заказ ожидает оплаты. Подтверждение придёт после оплаты картой.</p>
       )}
+      {order.customerType === "LEGAL" && (
+        <p className="pdp-note" style={{ marginTop: 16 }}>
+          Оплата по счёту.{" "}
+          <a href={`/api/invoice/${order.number}`} target="_blank" rel="noopener" style={{ color: "var(--rso-blue)", fontWeight: 600 }}>
+            Скачать счёт (PDF)
+          </a>
+        </p>
+      )}
 
       <div className="row-btns" style={{ marginTop: 24 }}>
         <Link href="/" className="btn btn-ghost btn-m">На главную</Link>

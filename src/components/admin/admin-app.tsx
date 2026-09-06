@@ -183,6 +183,12 @@ function Orders({ data, run }: { data: AdminData; run: RunFn }) {
                 </label>
                 <p className="hint">Смена статуса пишется в историю. «Отправлен» списывает товар со склада.</p>
               </div>
+              {open.type === "Юрлицо" && (
+                <div className="abox">
+                  <div className="abox-h">Документы</div>
+                  <a className="btn btn-outline btn-m" href={`/api/invoice/${open.number}`} target="_blank" rel="noopener">Счёт на оплату (PDF)</a>
+                </div>
+              )}
             </div>
           </div>
         </Modal>

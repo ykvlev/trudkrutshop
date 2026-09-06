@@ -27,6 +27,12 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   // Самодостаточная сборка для Docker: .next/standalone/server.js без node_modules.
   output: "standalone",
+  // Шрифты для генерации PDF-счёта читаются с диска в рантайме — включаем их в трейс.
+  outputFileTracingIncludes: {
+    "/api/invoice/[number]": ["src/lib/invoice/fonts/**/*"],
+  },
+  // Нативные node-зависимости не бандлим (native require).
+  serverExternalPackages: ["pg-boss", "pdf-lib", "@pdf-lib/fontkit"],
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
