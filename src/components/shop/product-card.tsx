@@ -1,18 +1,32 @@
 "use client";
 
 import Link from "next/link";
+import { useRef } from "react";
 import { useCart, pickVariant, toSnapshot } from "./cart-provider";
 import { ProductThumb } from "./product-thumb";
+import { flyToCart } from "./fly-to-cart";
 import { IconCart, IconCheck, IconPlus } from "./icons";
 import { formatPrice } from "@/lib/format";
 import { type Product } from "@/lib/test-data";
 
 export function ProductCard({ product }: { product: Product }) {
   const cart = useCart();
+  const imgRef = useRef<HTMLAnchorElement>(null);
   const variant = pickVariant(product);
   const available = !!variant && variant.stock > 0;
   const snap = variant ? toSnapshot(product, variant) : null;
   const added = snap ? cart.has(snap.variantId) : false;
+
+  const onToggle = () => {
+    if (!snap) return;
+    const wasIn = cart.has(snap.variantId);
+    cart.toggle(snap);
+    if (!wasIn) {
+      const box = imgRef.current;
+      const src = box?.querySelector("img")?.src;
+      flyToCart(box, src);
+    }
+  };
   const discount =
     product.oldPrice && product.oldPrice > product.price
       ? Math.round((1 - product.price / product.oldPrice) * 100)
@@ -20,7 +34,7 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <article className="pcard">
-      <Link href={`/product/${product.slug}`} className="pcard-img" aria-label={product.name}>
+      <Link ref={imgRef} href={`/product/${product.slug}`} className="pcard-img" aria-label={product.name}>
         <div className="pcard-badges">
           {product.isNew && <span className="badge badge-blue">Новинка</span>}
           {product.isBestseller && <span className="badge badge-dark">Хит</span>}
@@ -41,7 +55,7 @@ export function ProductCard({ product }: { product: Product }) {
             <span className="cart-toggle">
               <button
                 type="button"
-                onClick={() => cart.toggle(snap)}
+                onClick={onToggle}
                 aria-pressed={added}
                 aria-label={added ? "Товар добавлен в корзину" : "Добавить товар в корзину"}
                 className={`ibtn ibtn-cart${added ? " is-in" : ""}`}

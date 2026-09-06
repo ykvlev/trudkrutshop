@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useCart, toSnapshot } from "./cart-provider";
 import { ProductThumb } from "./product-thumb";
+import { flyToCart } from "./fly-to-cart";
 import { IconCheck, IconClose, IconPlus } from "./icons";
 import { formatPrice } from "@/lib/format";
 import type { Product } from "@/lib/test-data";
@@ -23,6 +24,7 @@ export function ProductDetail({ product }: { product: Product }) {
   const [qty, setQty] = useState(1);
   const [img, setImg] = useState(0);
   const [chart, setChart] = useState(false);
+  const galleryRef = useRef<HTMLDivElement>(null);
 
   const selected = product.variants.find(
     (v) =>
@@ -39,14 +41,19 @@ export function ProductDetail({ product }: { product: Product }) {
 
   const onCart = () => {
     if (!selected || !selVariantId) return;
-    if (added) cart.remove(selVariantId);
-    else cart.add(toSnapshot(product, selected), qty);
+    if (added) {
+      cart.remove(selVariantId);
+    } else {
+      cart.add(toSnapshot(product, selected), qty);
+      const box = galleryRef.current;
+      flyToCart(box, box?.querySelector("img")?.src);
+    }
   };
 
   return (
     <div className="pdp">
       {/* Галерея */}
-      <div>
+      <div ref={galleryRef}>
         <ProductThumb label={product.name} category={product.category} className={undefined} />
         <div className="pdp-thumbs">
           {[0, 1, 2, 3].map((n) => (

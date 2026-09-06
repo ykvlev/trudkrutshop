@@ -314,21 +314,17 @@ function OrderDone({
           <div className="doc-h">
             <div>
               <div className="doc-n">Счёт на оплату № {done.number}</div>
-              <div className="hint">от {new Date().toLocaleDateString("ru-RU")}</div>
+              <div className="hint">Покупатель: {entity?.name ?? "—"}{entity?.inn ? ` · ИНН ${entity.inn}` : ""}</div>
             </div>
-            <span className="badge badge-ok">Ожидает оплаты</span>
-          </div>
-          <div className="doc-p">
-            <p><b>Поставщик:</b><br />АНО ДПО «РСО-РАЗВИТИЕ»<br />ИНН 7743351523 · КПП 770101001</p>
-            <p><b>Покупатель:</b><br />{entity?.name ?? "—"}<br />ИНН {entity?.inn ?? "—"} · КПП {entity?.kpp ?? "—"}</p>
+            <span className="badge badge-warn">Ожидает оплаты</span>
           </div>
           <div className="doc-s">
             <div className="sum-t"><span>К оплате</span><span className="num">{formatPrice(done.total)}</span></div>
           </div>
-          <div className="doc-f">
-            <span className="hint">Оплата в течение 5 рабочих дней. После оплаты — УПД через ЭДО.</span>
-            <span className="doc-stamp">Место для подписи и печати</span>
+          <div className="row-btns" style={{ marginTop: 8 }}>
+            <a href={`/api/invoice/${done.number}`} target="_blank" rel="noopener" className="btn btn-blue btn-m">Скачать счёт (PDF)</a>
           </div>
+          <p className="hint" style={{ marginTop: 12 }}>Счёт также отправлен на вашу почту. После оплаты сформируем УПД.</p>
         </div>
       ) : (
         <div className="paystate">

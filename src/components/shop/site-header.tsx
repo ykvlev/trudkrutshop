@@ -61,7 +61,7 @@ export function SiteHeader() {
               <input name="q" placeholder="Поиск по магазину" aria-label="Поиск по магазину" />
               <button type="submit" className="sr-only">Найти</button>
             </form>
-            <Link href="/cart" className="cart-btn" aria-label={`Корзина, товаров: ${cart.count}`}>
+            <Link href="/cart" className="cart-btn js-cart-target" aria-label={`Корзина, товаров: ${cart.count}`}>
               <IconCart width={20} height={20} />
               Корзина
               {cart.count > 0 && <span className="cart-n">{cart.count}</span>}
@@ -76,7 +76,7 @@ export function SiteHeader() {
             <Link href="/" className="hdr-logo" aria-label="ТрудКрутШоп — на главную">
               <span className="logo-mask lg" />
             </Link>
-            <Link href="/cart" className="ibtn" style={{ position: "relative" }} aria-label={`Корзина, товаров: ${cart.count}`}>
+            <Link href="/cart" className="ibtn js-cart-target" style={{ position: "relative" }} aria-label={`Корзина, товаров: ${cart.count}`}>
               <IconCart />
               {cart.count > 0 && <span className="cart-n">{cart.count}</span>}
             </Link>

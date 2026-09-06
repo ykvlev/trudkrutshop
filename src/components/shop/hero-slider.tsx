@@ -6,10 +6,11 @@ import { IconArrowLeft, IconArrowRight } from "./icons";
 
 type Slide = { eyebrow: string; title: string; text: string; cta: string; href: string };
 
+// Тексты — нейтральные, без выдуманных заявлений. Заказчик заменит на свои.
 const slides: Slide[] = [
-  { eyebrow: "Отрядный мерч РСО", title: "#трудкрут,\nа ты ещё круче", text: "Футболки, худи, значки и аксессуары для настоящих бойцов студотрядов.", cta: "Смотреть каталог", href: "/catalog/futbolki" },
-  { eyebrow: "Коллекция 2024", title: "значки-кирпичи\nпо годам", text: "Собери свою историю отрядов — металл, эмаль, коллекционные серии.", cta: "В раздел «Значки»", href: "/catalog/znachki" },
-  { eyebrow: "К сезону", title: "худи с начёсом\nи вышивкой", text: "Тёплые худи унисекс с символикой РСО. Размеры от XS до XXL.", cta: "Выбрать худи", href: "/catalog/hudi" },
+  { eyebrow: "Отрядный мерч РСО", title: "#трудкрут,\nа ты ещё круче", text: "Футболки, худи, значки и аксессуары.", cta: "Смотреть каталог", href: "/catalog/futbolki" },
+  { eyebrow: "Каталог", title: "Значки\nи кирпичи", text: "", cta: "В раздел «Значки»", href: "/catalog/znachki" },
+  { eyebrow: "Каталог", title: "Футболки\nи худи", text: "", cta: "Выбрать одежду", href: "/catalog/hudi" },
 ];
 
 export function HeroSlider() {
@@ -30,7 +31,7 @@ export function HeroSlider() {
             <div className="slider-in">
               <p className="label label-w">{s.eyebrow}</p>
               <h2>{s.title}</h2>
-              <p>{s.text}</p>
+              {s.text && <p>{s.text}</p>}
               <Link href={s.href} className="btn btn-white btn-l" tabIndex={idx === i ? 0 : -1}>
                 {s.cta} <IconArrowRight width={18} height={18} />
               </Link>

@@ -35,21 +35,21 @@ export default async function HomePage() {
         ))}
       </div>
 
-      <Section eyebrow="Выбор отрядов" title="Лидеры продаж" href="/catalog/futbolki" items={bestsellers} />
-      <Section eyebrow="Только завезли" title="Новинки" href="/catalog/znachki" items={fresh} />
+      <Section title="Хиты продаж" href="/catalog/futbolki" items={bestsellers} />
+      <Section title="Новинки" href="/catalog/znachki" items={fresh} />
 
       <section className="band">
         <div>
           <p className="label label-w">Сообщество</p>
-          <h2>Вступай в движение РСО</h2>
-          <p>Более 400 000 бойцов по всей стране. Отрядный мерч — часть большой истории.</p>
+          <h2>Российские Студенческие Отряды</h2>
+          <p>Официальный магазин отрядного мерча.</p>
         </div>
         <div style={{ justifySelf: "start" }}>
           <a href="https://vk.com" className="btn btn-white btn-l">РСО ВКонтакте →</a>
         </div>
       </section>
 
-      <Section eyebrow="Собрано для тебя" title="Весь каталог" items={shuffled} />
+      <Section title="Весь каталог" items={shuffled} />
     </div>
   );
 }
@@ -60,7 +60,7 @@ function Section({
   items,
   href,
 }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   items: Product[];
   href?: string;
@@ -70,7 +70,7 @@ function Section({
     <section>
       <div className="sec-h">
         <div>
-          <p className="label">{eyebrow}</p>
+          {eyebrow && <p className="label">{eyebrow}</p>}
           <h2>{title}</h2>
         </div>
         {href && <Link href={href} className="link">Все товары →</Link>}
