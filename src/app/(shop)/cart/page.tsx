@@ -32,7 +32,31 @@ export default function CartPage() {
   const [entity, setEntity] = useState<Entity | null>(null);
   const [done, setDone] = useState<null | { number: string; legal: boolean; total: number; paymentUrl?: string }>(null);
 
+  // Контакты и доставка.
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [comment, setComment] = useState("");
+  const [city, setCity] = useState("");
+  const [address, setAddress] = useState("");
+  const [touched, setTouched] = useState(false); // показывать ошибки только после попытки отправки
+  const [submitting, setSubmitting] = useState(false);
+  const [submitErr, setSubmitErr] = useState("");
+
   const deliveryCost = DELIVERY.find((d) => d.code === delivery)?.cost ?? 0;
+  const needsAddress = delivery !== "pickup"; // самовывоз адрес не требует
+
+  // Валидация полей (клиентская; сервер дублирует как страховку).
+  const errors = {
+    name: name.trim().length < 2 ? "Укажите имя" : "",
+    phone: phone.replace(/\D/g, "").length < 10 ? "Укажите корректный телефон" : "",
+    email: /^\S+@\S+\.\S+$/.test(email.trim()) ? "" : "Укажите корректный e-mail",
+    city: needsAddress && !city.trim() ? "Укажите город" : "",
+    address: needsAddress && !address.trim() ? (delivery === "pvz" ? "Укажите пункт выдачи" : "Укажите адрес") : "",
+    entity: legal && !entity ? "Подтяните реквизиты по ИНН" : "",
+  };
+  const isValid = !Object.values(errors).some(Boolean);
+  const err = (k: keyof typeof errors) => (touched && errors[k] ? errors[k] : "");
 
   const totals = useMemo(() => {
     const cl = items.map((i) => ({ price: i.price, quantity: i.qty, categorySlug: i.category }));
@@ -54,19 +78,32 @@ export default function CartPage() {
   };
 
   const submit = async (asLegal: boolean) => {
-    const res = await placeOrder({
-      lines: items.map((i) => ({
-        variantId: i.variantId, name: i.name, price: i.price, quantity: i.qty, categorySlug: i.category,
-      })),
-      promoCode: promo?.code,
-      deliveryType: delivery === "pickup" ? "PICKUP" : "SAFEROUTE",
-      deliveryCost,
-      legal: asLegal,
-      inn: entity?.inn,
-      contact: { name: "", phone: "", email: "" },
-    });
-    setDone({ number: res.number, legal: asLegal, total: res.total, paymentUrl: res.paymentUrl });
-    cart.clear();
+    setTouched(true);
+    setSubmitErr("");
+    if (!isValid) return;
+    setSubmitting(true);
+    try {
+      const res = await placeOrder({
+        lines: items.map((i) => ({
+          variantId: i.variantId, name: i.name, price: i.price, quantity: i.qty, categorySlug: i.category,
+        })),
+        promoCode: promo?.code,
+        deliveryType: delivery === "pickup" ? "PICKUP" : "SAFEROUTE",
+        deliveryCost,
+        deliveryData: needsAddress
+          ? { city: city.trim(), address: address.trim(), method: delivery }
+          : { method: "pickup" },
+        legal: asLegal,
+        inn: entity?.inn,
+        contact: { name: name.trim(), phone: phone.trim(), email: email.trim(), comment: comment.trim() || undefined },
+      });
+      setDone({ number: res.number, legal: asLegal, total: res.total, paymentUrl: res.paymentUrl });
+      cart.clear();
+    } catch (e) {
+      setSubmitErr(e instanceof Error ? e.message : "Не удалось оформить заказ. Попробуйте ещё раз.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (done) return <OrderDone done={done} entity={entity} />;
@@ -136,9 +173,21 @@ export default function CartPage() {
           {/* Контакты */}
           <h2 style={{ margin: "28px 0 14px" }}>Контакты</h2>
           <div className="fgrid">
-            <label className="fld"><span className="fld-l">Имя</span><input placeholder="Иван" /></label>
-            <label className="fld"><span className="fld-l">Телефон</span><input placeholder="+7 900 000-00-00" /></label>
-            <label className="fld"><span className="fld-l">E-mail</span><input placeholder="you@mail.ru" /></label>
+            <label className="fld">
+              <span className="fld-l">Имя <span aria-hidden style={{ color: "var(--rso-alert)" }}>*</span></span>
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Иван" aria-invalid={!!err("name")} required />
+              {err("name") && <span className="bad">{err("name")}</span>}
+            </label>
+            <label className="fld">
+              <span className="fld-l">Телефон <span aria-hidden style={{ color: "var(--rso-alert)" }}>*</span></span>
+              <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+7 900 000-00-00" inputMode="tel" aria-invalid={!!err("phone")} required />
+              {err("phone") && <span className="bad">{err("phone")}</span>}
+            </label>
+            <label className="fld">
+              <span className="fld-l">E-mail <span aria-hidden style={{ color: "var(--rso-alert)" }}>*</span></span>
+              <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@mail.ru" inputMode="email" type="email" aria-invalid={!!err("email")} required />
+              {err("email") && <span className="bad">{err("email")}</span>}
+            </label>
           </div>
 
           {/* Доставка */}
@@ -156,9 +205,32 @@ export default function CartPage() {
             ))}
           </div>
 
+          {needsAddress && (
+            <div className="fgrid" style={{ marginTop: 12 }}>
+              <label className="fld">
+                <span className="fld-l">Город <span aria-hidden style={{ color: "var(--rso-alert)" }}>*</span></span>
+                <input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Москва" aria-invalid={!!err("city")} required />
+                {err("city") && <span className="bad">{err("city")}</span>}
+              </label>
+              <label className="fld">
+                <span className="fld-l">
+                  {delivery === "pvz" ? "Пункт выдачи" : "Адрес доставки"} <span aria-hidden style={{ color: "var(--rso-alert)" }}>*</span>
+                </span>
+                <input
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder={delivery === "pvz" ? "Адрес ПВЗ или его код" : "Улица, дом, квартира"}
+                  aria-invalid={!!err("address")}
+                  required
+                />
+                {err("address") && <span className="bad">{err("address")}</span>}
+              </label>
+            </div>
+          )}
+
           <label className="fld" style={{ marginTop: 12 }}>
             <span className="fld-l">Комментарий к заказу</span>
-            <textarea rows={3} placeholder="Пожелания по заказу" />
+            <textarea rows={3} placeholder="Пожелания по заказу" value={comment} onChange={(e) => setComment(e.target.value)} />
           </label>
 
           {/* Юрлицо */}
@@ -200,14 +272,16 @@ export default function CartPage() {
           <div className="sum-t"><span>Итого</span><span className="num">{formatPrice(totals.total)}</span></div>
 
           {legal ? (
-            <button type="button" className="btn btn-blue btn-l" disabled={!entity} onClick={() => submit(true)}>
-              Выставить счёт
+            <button type="button" className="btn btn-blue btn-l" disabled={submitting} onClick={() => submit(true)}>
+              {submitting ? "Оформляем…" : "Выставить счёт"}
             </button>
           ) : (
-            <button type="button" className="btn btn-blue btn-l" onClick={() => submit(false)}>
-              Оформить заказ
+            <button type="button" className="btn btn-blue btn-l" disabled={submitting} onClick={() => submit(false)}>
+              {submitting ? "Оформляем…" : "Оформить заказ"}
             </button>
           )}
+          {touched && !isValid && <p className="bad" style={{ marginTop: 10 }}>Заполните обязательные поля, отмеченные звёздочкой.</p>}
+          {submitErr && <p className="bad" style={{ marginTop: 10 }}>{submitErr}</p>}
           <p className="sum-n">
             {legal
               ? "Оплата по счёту. УПД формируется после оплаты."

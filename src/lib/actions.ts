@@ -62,10 +62,30 @@ export type PlaceOrderInput = {
   promoCode?: string;
   deliveryType: "SAFEROUTE" | "PICKUP";
   deliveryCost: number;
+  deliveryData?: { city?: string; address?: string; method?: string } | null;
   legal: boolean;
   inn?: string;
   contact: { name: string; phone: string; email: string; comment?: string };
 };
+
+/** Серверная валидация заказа (страховка: клиент можно обойти). Бросает при
+ * пустых обязательных полях — так «пустой» заказ не попадёт в БД. */
+function validateOrderInput(input: PlaceOrderInput): string | null {
+  if (input.lines.length === 0) return "Корзина пуста";
+  const name = input.contact.name?.trim() ?? "";
+  const phoneDigits = (input.contact.phone ?? "").replace(/\D/g, "");
+  const email = input.contact.email?.trim() ?? "";
+  if (name.length < 2) return "Укажите имя";
+  if (phoneDigits.length < 10) return "Укажите корректный телефон";
+  if (!/^\S+@\S+\.\S+$/.test(email)) return "Укажите корректный e-mail";
+  // Для доставки (не самовывоз) нужен город и адрес/ПВЗ.
+  if (input.deliveryType === "SAFEROUTE") {
+    if (!input.deliveryData?.city?.trim()) return "Укажите город доставки";
+    if (!input.deliveryData?.address?.trim()) return "Укажите адрес или пункт выдачи";
+  }
+  if (input.legal && !input.inn?.trim()) return "Для юрлица укажите ИНН и подтяните реквизиты";
+  return null;
+}
 
 export type PlaceOrderResult = {
   number: string;
@@ -77,6 +97,9 @@ export type PlaceOrderResult = {
 /** Оформление заказа: расчёт итогов, для физлица — создание платежа (Точка),
  * для юрлица — счёт. Резервирование остатка и запись в БД добавятся с Prisma. */
 export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResult> {
+  const invalid = validateOrderInput(input);
+  if (invalid) throw new Error(invalid);
+
   let number: string;
   let total: number;
   let orderId: string | undefined;
@@ -90,6 +113,7 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
       promoCode: input.promoCode,
       deliveryType: input.deliveryType,
       deliveryCost: input.deliveryCost,
+      deliveryData: input.deliveryData,
     });
     number = order.number;
     total = order.total;

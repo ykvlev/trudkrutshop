@@ -23,6 +23,7 @@ export type CreateOrderInput = {
   promoCode?: string;
   deliveryType: "SAFEROUTE" | "PICKUP";
   deliveryCost: number;
+  deliveryData?: { city?: string; address?: string; method?: string } | null;
   legalEntityId?: string;
 };
 
@@ -70,6 +71,7 @@ export async function createOrderDb(input: CreateOrderInput) {
         email: input.contact.email,
         comment: input.contact.comment,
         deliveryType: input.deliveryType,
+        deliveryData: input.deliveryData ?? undefined,
         deliveryCost: input.deliveryCost,
         discountAmount: round2(t.discount + legalDiscount),
         subtotal: t.subtotal,
