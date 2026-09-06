@@ -26,7 +26,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   // Самодостаточная сборка для Docker: .next/standalone/server.js без node_modules.
-  output: "standalone",
+  // На Vercel standalone не нужен (у него свой трейсинг) и ломает сборку —
+  // включаем его только вне Vercel.
+  output: process.env.VERCEL ? undefined : "standalone",
   // Шрифты для генерации PDF-счёта читаются с диска в рантайме — включаем их в трейс.
   outputFileTracingIncludes: {
     "/api/invoice/[number]": ["src/lib/invoice/fonts/**/*"],
