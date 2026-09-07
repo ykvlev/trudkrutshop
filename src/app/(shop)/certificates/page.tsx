@@ -24,7 +24,11 @@ export default function CertificatesPage() {
   const [added, setAdded] = useState(false);
   const [err, setErr] = useState("");
 
+  const emailOk = /^\S+@\S+\.\S+$/.test(email.trim());
+  const valid = emailOk && amount >= 100 && (when === "now" || at !== "");
+
   const addToCart = async () => {
+    if (!valid) return;
     const res = await createCertificateOrder({
       design: design.id, amount, recipientEmail: email, recipientPhone: phone,
       sendAt: when === "later" ? at : null,
@@ -103,9 +107,14 @@ export default function CertificatesPage() {
             </div>
           </div>
 
-          <button type="button" className="btn btn-blue btn-l" onClick={addToCart}>
+          <button type="button" className="btn btn-blue btn-l" onClick={addToCart} disabled={!valid}>
             В корзину — {formatPrice(amount)}
           </button>
+          {!valid && (
+            <p className="hint" style={{ marginTop: 8 }}>
+              Укажите корректный e-mail получателя, сумму от 100 ₽{when === "later" ? " и дату отправки" : ""}.
+            </p>
+          )}
           {added && (
             <div className="ok" style={{ marginTop: 14 }}>
               Сертификат добавлен. Оформите его в <Link href="/cart" className="link">корзине</Link>.
