@@ -10,9 +10,9 @@ import { computeTotals, round2, type Promo } from "@/domain/pricing";
 import { lookupCompanyByInn, placeOrder, validatePromo } from "@/lib/actions";
 
 const DELIVERY = [
-  { code: "pickup", title: "Самовывоз", sub: "Москва, Лефортовский пер., 8", cost: 0 },
-  { code: "pvz", title: "Пункт выдачи (SafeRoute)", sub: "2–5 дней", cost: 250 },
-  { code: "courier", title: "Курьером до двери", sub: "1–3 дня", cost: 450 },
+  { code: "pickup", title: "Самовывоз", sub: "Москва, Лефортовский пер., 8", cost: 0, icon: "LinearEssentionalUIHome" },
+  { code: "pvz", title: "Пункт выдачи (SafeRoute)", sub: "2–5 дней", cost: 250, icon: "LinearEssentionalUIBox" },
+  { code: "courier", title: "Курьером до двери", sub: "1–3 дня", cost: 450, icon: "LinearEssentionalUIDelivery" },
 ];
 
 const LEGAL_DISCOUNT = 0.1; // 10% для юрлиц (демо; условие уточняет заказчик)
@@ -197,6 +197,7 @@ export default function CartPage() {
             {DELIVERY.map((d) => (
               <label key={d.code} className={`dopt${delivery === d.code ? " is-on" : ""}`}>
                 <input type="radio" name="delivery" checked={delivery === d.code} onChange={() => setDelivery(d.code)} />
+                <Icon name={d.icon} size={22} style={{ color: "var(--rso-blue)", flexShrink: 0 }} />
                 <span>
                   <span className="dopt-t">{d.title}</span>
                   <span className="dopt-s">{d.sub}</span>
