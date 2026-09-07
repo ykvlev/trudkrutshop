@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ProductCard } from "./product-card";
+import { Icon } from "@/components/ui/icon";
 import { type Product } from "@/lib/test-data";
 
 type Sort = "new" | "price-asc" | "price-desc" | "size";
@@ -60,6 +61,10 @@ export function CatalogView({ items }: { items: Product[] }) {
     <div className="shell">
       <aside className="left">
         <div className="filters">
+          <div className="filters-h">
+            <Icon name="LinearEssentionalUIFilter" size={20} style={{ color: "var(--rso-blue)" }} />
+            <span>Фильтры</span>
+          </div>
           {sizes.length > 0 && (
             <div className="fld">
               <span className="fld-l">Размер</span>
@@ -100,6 +105,7 @@ export function CatalogView({ items }: { items: Product[] }) {
           <span className="toolbar-c">{filtered.length} {plural(filtered.length, "товар", "товара", "товаров")}</span>
           <div className="toolbar-r">
             <label className="sortsel">
+              <Icon name="LinearEssentionalUISort" size={18} style={{ color: "var(--rso-blue)" }} />
               <span>Сортировка</span>
               <select value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
                 {(Object.keys(sortLabels) as Sort[]).map((s) => (

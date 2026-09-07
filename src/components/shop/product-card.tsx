@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { useCart, pickVariant, toSnapshot } from "./cart-provider";
 import { ProductThumb } from "./product-thumb";
 import { flyToCart } from "./fly-to-cart";
+import { Icon } from "@/components/ui/icon";
 import { IconCart, IconCheck, IconPlus } from "./icons";
 import { formatPrice } from "@/lib/format";
 import { type Product } from "@/lib/test-data";
@@ -37,7 +38,9 @@ export function ProductCard({ product }: { product: Product }) {
       <Link ref={imgRef} href={`/product/${product.slug}`} className="pcard-img" aria-label={product.name}>
         <div className="pcard-badges">
           {product.isNew && <span className="badge badge-blue">Новинка</span>}
-          {product.isBestseller && <span className="badge badge-dark">Хит</span>}
+          {product.isBestseller && (
+            <span className="badge badge-dark"><Icon name="LinearEssentionalUICupStar" size={13} /> Хит</span>
+          )}
           {discount !== null && <span className="badge badge-alert">−{discount}%</span>}
         </div>
         <ProductThumb label={product.name} category={product.category} />

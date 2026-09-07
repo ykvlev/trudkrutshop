@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCart } from "@/components/shop/cart-provider";
 import { ProductThumb } from "@/components/shop/product-thumb";
 import { IconClose } from "@/components/shop/icons";
+import { Icon } from "@/components/ui/icon";
 import { formatPrice } from "@/lib/format";
 import { computeTotals, round2, type Promo } from "@/domain/pricing";
 import { lookupCompanyByInn, placeOrder, validatePromo } from "@/lib/actions";
@@ -111,7 +112,8 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="wrap" style={{ padding: "48px 0 80px", textAlign: "center" }}>
-        <h1>Корзина пуста</h1>
+        <Icon name="LinearEssentionalUIBox" size={64} style={{ color: "var(--rso-blue)", opacity: 0.7 }} />
+        <h1 style={{ marginTop: 12 }}>Корзина пуста</h1>
         <p className="seo" style={{ margin: "0 auto 24px" }}>Загляните в каталог — там весь отрядный мерч.</p>
         <Link href="/catalog/futbolki" className="btn btn-blue btn-l">В каталог</Link>
       </div>
