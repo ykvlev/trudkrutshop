@@ -3,6 +3,8 @@
 // подобранные по категории товара. Для категорий без фото — тонированная
 // заглушка с маской-логотипом. Имя файла = SKU заменит это на пофотовые снимки.
 
+import Image from "next/image";
+
 // Категория (leaf-слаг) → файл категорийного фото в public/img/categories.
 const CATEGORY_IMAGE: Record<string, string> = {
   futbolki: "futbolki",
@@ -38,8 +40,7 @@ export function ProductThumb({
   if (file) {
     return (
       <div className={`ph ph-photo ${className}`} style={{ aspectRatio: "1", ...style }}>
-        {/* eslint-disable-next-line @next/next/no-img-element -- статичные локальные фото фикс. размера */}
-        <img src={`/img/categories/${file}.jpg`} alt={label} loading="lazy" />
+        <Image src={`/img/categories/${file}.jpg`} alt={label} fill sizes="(max-width: 767px) 50vw, 25vw" style={{ objectFit: "cover" }} />
       </div>
     );
   }

@@ -32,6 +32,7 @@ const nextConfig: NextConfig = {
   // Шрифты для генерации PDF-счёта читаются с диска в рантайме — включаем их в трейс.
   outputFileTracingIncludes: {
     "/api/invoice/[number]": ["src/lib/invoice/fonts/**/*"],
+    "/opengraph-image": ["src/lib/invoice/fonts/**/*"],
   },
   // Нативные node-зависимости не бандлим (native require).
   serverExternalPackages: ["pg-boss", "pdf-lib", "@pdf-lib/fontkit"],
