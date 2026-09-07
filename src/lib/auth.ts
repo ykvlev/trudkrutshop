@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createHmac, scryptSync, timingSafeEqual } from "node:crypto";
 import { prisma } from "@/lib/prisma";
+import { can, type Perm } from "@/lib/permissions";
 
 const SESSION_COOKIE = "tksh_admin";
 const MAX_AGE = 60 * 60 * 24 * 7; // 7 дней
@@ -89,5 +90,12 @@ export async function getAdmin() {
 export async function requireAdmin() {
   const admin = await getAdmin();
   if (!admin) redirect("/admin/login");
+  return admin;
+}
+
+/** Требовать право (роль): иначе — ошибка (действие недоступно этой роли). */
+export async function requirePerm(perm: Perm) {
+  const admin = await requireAdmin();
+  if (!can(admin.role, perm)) throw new Error("Недостаточно прав для этого действия");
   return admin;
 }

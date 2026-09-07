@@ -73,5 +73,5 @@ export default async function AdminPage() {
     users: users.map((u) => ({ id: u.id, name: u.name, email: u.email, role: u.role, active: u.isActive })),
   };
 
-  return <AdminApp data={data} adminName={admin.name} />;
+  return <AdminApp data={data} adminName={admin.name} role={admin.role} />;
 }

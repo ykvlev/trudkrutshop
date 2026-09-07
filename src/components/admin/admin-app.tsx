@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/format";
 import {
   setOrderStatus, addStockMovement, upsertProduct, upsertPromo, upsertAdminUser,
 } from "@/lib/admin-actions";
-import { logoutAdmin } from "@/lib/admin-auth-actions";
+import { logoutAdmin, changeOwnPassword, type PasswordState } from "@/lib/admin-auth-actions";
+import { can, type Perm } from "@/lib/permissions";
+import type { AdminRole } from "@prisma/client";
 
 // ── Типы данных (приходят из серверной admin/page.tsx) ──────────────
 export type AdminData = {
@@ -48,8 +50,10 @@ const NAV = [
 ] as const;
 type Section = (typeof NAV)[number]["id"];
 
-export function AdminApp({ data, adminName }: { data: AdminData; adminName?: string }) {
+export function AdminApp({ data, adminName, role = "ADMIN" }: { data: AdminData; adminName?: string; role?: AdminRole }) {
   const [section, setSection] = useState<Section>("overview");
+  const [pwOpen, setPwOpen] = useState(false);
+  const visibleNav = NAV.filter((n) => n.id === "overview" || can(role, n.id as Perm));
   const router = useRouter();
   const [pending, start] = useTransition();
   const run = (fn: () => Promise<void>) => start(async () => { await fn(); router.refresh(); });
@@ -63,6 +67,7 @@ export function AdminApp({ data, adminName }: { data: AdminData; adminName?: str
         </div>
         <div className="ahdr-r">
           <span className="ahdr-u">{adminName ?? "Администратор"}</span>
+          <button type="button" className="btn btn-ghost btn-s" onClick={() => setPwOpen(true)}>Пароль</button>
           <Link href="/" className="btn btn-ghost btn-s">На витрину</Link>
           <form action={logoutAdmin}>
             <button type="submit" className="btn btn-outline btn-s">Выйти</button>
@@ -70,9 +75,11 @@ export function AdminApp({ data, adminName }: { data: AdminData; adminName?: str
         </div>
       </div>
 
+      {pwOpen && <ChangePasswordModal onClose={() => setPwOpen(false)} />}
+
       <div className="abody">
         <nav className="anav">
-          {NAV.map((n) => (
+          {visibleNav.map((n) => (
             <button key={n.id} type="button" className={section === n.id ? "is-on" : ""} onClick={() => setSection(n.id)}>{n.label}</button>
           ))}
         </nav>
@@ -448,6 +455,32 @@ function EditUser({ user, onClose, run }: { user: AdminData["users"][number] | n
       <label className="dopt" style={{ marginBottom: 16 }}><input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} /><span><span className="dopt-t">Доступ включён</span></span></label>
       {!user && <p className="hint" style={{ marginBottom: 12 }}>Временный пароль: <b>changeme</b> — сотрудник меняет при первом входе.</p>}
       <button type="button" className="btn btn-blue btn-l" disabled={!name || !email} onClick={save}>Сохранить</button>
+    </Modal>
+  );
+}
+
+const pwInitial: PasswordState = {};
+function ChangePasswordModal({ onClose }: { onClose: () => void }) {
+  const [state, action, pending] = useActionState(changeOwnPassword, pwInitial);
+  return (
+    <Modal title="Смена пароля" onClose={onClose}>
+      {state.ok ? (
+        <>
+          <p className="ok">Пароль обновлён.</p>
+          <button type="button" className="btn btn-blue btn-m" onClick={onClose} style={{ marginTop: 12 }}>Готово</button>
+        </>
+      ) : (
+        <form action={action}>
+          <label className="fld"><span className="fld-l">Текущий пароль</span>
+            <input name="current" type="password" autoComplete="current-password" required /></label>
+          <label className="fld" style={{ marginTop: 12 }}><span className="fld-l">Новый пароль (мин. 8)</span>
+            <input name="next" type="password" autoComplete="new-password" minLength={8} required /></label>
+          {state.error && <p className="bad" style={{ marginTop: 10 }}>{state.error}</p>}
+          <button type="submit" className="btn btn-blue btn-m" style={{ marginTop: 16 }} disabled={pending}>
+            {pending ? "Сохраняем…" : "Сменить пароль"}
+          </button>
+        </form>
+      )}
     </Modal>
   );
 }
