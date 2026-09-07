@@ -7,6 +7,7 @@ import { formatPrice } from "@/lib/format";
 import {
   setOrderStatus, addStockMovement, upsertProduct, upsertPromo, upsertAdminUser,
 } from "@/lib/admin-actions";
+import { logoutAdmin } from "@/lib/admin-auth-actions";
 
 // ── Типы данных (приходят из серверной admin/page.tsx) ──────────────
 export type AdminData = {
@@ -47,7 +48,7 @@ const NAV = [
 ] as const;
 type Section = (typeof NAV)[number]["id"];
 
-export function AdminApp({ data }: { data: AdminData }) {
+export function AdminApp({ data, adminName }: { data: AdminData; adminName?: string }) {
   const [section, setSection] = useState<Section>("overview");
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -61,8 +62,11 @@ export function AdminApp({ data }: { data: AdminData }) {
           Админка{pending && <span className="ahdr-u"> · сохранение…</span>}
         </div>
         <div className="ahdr-r">
-          <span className="ahdr-u">Администратор</span>
+          <span className="ahdr-u">{adminName ?? "Администратор"}</span>
           <Link href="/" className="btn btn-ghost btn-s">На витрину</Link>
+          <form action={logoutAdmin}>
+            <button type="submit" className="btn btn-outline btn-s">Выйти</button>
+          </form>
         </div>
       </div>
 

@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { scryptSync, randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { changeOrderStatusDb, recordStockMovementDb } from "@/lib/actions-db";
+import { requireAdmin } from "@/lib/auth";
 import type { OrderStatus, PromoType, StockReason, AdminRole } from "@prisma/client";
 
 function refresh() {
@@ -24,6 +25,7 @@ const slugify = (s: string) =>
 
 /** Смена статуса заказа (история + списание при отгрузке — в actions-db). */
 export async function setOrderStatus(orderId: string, status: OrderStatus) {
+  await requireAdmin();
   await changeOrderStatusDb(orderId, status);
   refresh();
 }
@@ -35,6 +37,7 @@ export async function addStockMovement(input: {
   reason: StockReason;
   comment?: string;
 }) {
+  await requireAdmin();
   await recordStockMovementDb(input);
   refresh();
 }
@@ -47,6 +50,7 @@ export async function upsertProduct(input: {
   price: number;
   isActive: boolean;
 }) {
+  await requireAdmin();
   const cat = await prisma.category.findUnique({ where: { slug: input.categorySlug } });
   if (!cat) throw new Error("Раздел не найден");
   if (input.id) {
@@ -78,6 +82,7 @@ export async function upsertPromo(input: {
   usageLimit?: number | null;
   isActive: boolean;
 }) {
+  await requireAdmin();
   await prisma.promoCode.upsert({
     where: { code: input.code },
     create: {
@@ -100,6 +105,7 @@ export async function upsertAdminUser(input: {
   role: AdminRole;
   isActive: boolean;
 }) {
+  await requireAdmin();
   if (input.id) {
     await prisma.adminUser.update({
       where: { id: input.id },

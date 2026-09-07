@@ -1,5 +1,6 @@
 import { AdminApp, type AdminData } from "@/components/admin/admin-app";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ const CERT_RU: Record<string, string> = {
 };
 
 export default async function AdminPage() {
+  const admin = await requireAdmin();
   const [orders, products, movements, promos, certificates, categories, users, units] = await Promise.all([
     prisma.order.findMany({
       include: { items: true, statusHistory: { orderBy: { createdAt: "asc" } } },
@@ -71,5 +73,5 @@ export default async function AdminPage() {
     users: users.map((u) => ({ id: u.id, name: u.name, email: u.email, role: u.role, active: u.isActive })),
   };
 
-  return <AdminApp data={data} />;
+  return <AdminApp data={data} adminName={admin.name} />;
 }
