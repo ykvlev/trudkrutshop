@@ -33,12 +33,6 @@ export default async function StaticPageRoute(props: PageProps<"/[page]">) {
         <h1>{p.title}</h1>
         {p.lead && <p className="lead">{p.lead}</p>}
 
-        {p.draft && (
-          <div className="pdp-note" style={{ margin: "16px 0" }}>
-            Черновик. Финальный юридический текст предоставляет заказчик — вставим без изменений вёрстки.
-          </div>
-        )}
-
         {p.qa && (
           <div className="qa">
             {p.qa.map((item) => (
