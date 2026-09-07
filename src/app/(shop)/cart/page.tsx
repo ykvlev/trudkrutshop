@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/components/shop/cart-provider";
 import { ProductThumb } from "@/components/shop/product-thumb";
-import { IconClose } from "@/components/shop/icons";
 import { Icon } from "@/components/ui/icon";
 import { formatPrice } from "@/lib/format";
 import { computeTotals, round2, type Promo } from "@/domain/pricing";
@@ -153,7 +152,7 @@ export default function CartPage() {
                   <td className="num">{formatPrice(i.price * i.qty)}</td>
                   <td>
                     <button type="button" className="ibtn" aria-label="Удалить" onClick={() => cart.remove(i.variantId)}>
-                      <IconClose width={18} height={18} />
+                      <Icon name="LinearEssentionalUITrashBin" size={18} />
                     </button>
                   </td>
                 </tr>

@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { useCart, toSnapshot } from "./cart-provider";
 import { ProductThumb } from "./product-thumb";
 import { flyToCart } from "./fly-to-cart";
+import { Icon } from "@/components/ui/icon";
 import { IconCheck, IconClose, IconPlus } from "./icons";
 import { formatPrice } from "@/lib/format";
 import type { Product } from "@/lib/test-data";
@@ -143,6 +144,7 @@ export function ProductDetail({ product }: { product: Product }) {
         {product.description && <p className="pdp-d" style={{ marginTop: 20 }}>{product.description}</p>}
 
         <div className="pdp-note" style={{ marginTop: 20 }}>
+          <Icon name="LinearEssentionalUIDelivery" size={22} style={{ flexShrink: 0 }} />
           Доставка по всей России через SafeRoute · оплата картой или по счёту для юрлиц
         </div>
       </div>
