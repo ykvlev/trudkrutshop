@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { IconTelegram, IconVk } from "./icons";
 import { Icon } from "@/components/ui/icon";
-import { topCategories } from "@/lib/test-data";
+import type { NavCategory } from "./site-header";
 
 const buyerLinks = [
   { href: "/delivery", label: "Доставка" },
@@ -13,7 +13,7 @@ const buyerLinks = [
   { href: "/returns", label: "Возврат и обмен" },
 ];
 
-export function SiteFooter() {
+export function SiteFooter({ nav = [] }: { nav?: NavCategory[] }) {
   return (
     <footer className="ftr">
       <div className="wrap">
@@ -29,7 +29,7 @@ export function SiteFooter() {
 
           <div className="ftr-c">
             <span className="label">Каталог</span>
-            {topCategories.map((c) => (
+            {nav.map((c) => (
               <Link key={c.slug} href={`/catalog/${c.slug}`}>{c.name}</Link>
             ))}
           </div>

@@ -26,6 +26,7 @@ export function ProductDetail({ product }: { product: Product }) {
   const [img, setImg] = useState(0);
   const [chart, setChart] = useState(false);
   const galleryRef = useRef<HTMLDivElement>(null);
+  const gallery = product.images ?? (product.image ? [product.image] : []);
 
   const selected = product.variants.find(
     (v) =>
@@ -55,14 +56,16 @@ export function ProductDetail({ product }: { product: Product }) {
     <div className="pdp">
       {/* Галерея */}
       <div ref={galleryRef}>
-        <ProductThumb label={product.name} category={product.category} className={undefined} />
-        <div className="pdp-thumbs">
-          {[0, 1, 2, 3].map((n) => (
-            <button key={n} type="button" className={n === img ? "is-on" : ""} onClick={() => setImg(n)} aria-label={`Ракурс ${n + 1}`}>
-              <ProductThumb label={`${n + 1}`} />
-            </button>
-          ))}
-        </div>
+        <ProductThumb label={product.name} category={product.category} src={gallery[img] ?? gallery[0]} className={undefined} />
+        {gallery.length > 1 && (
+          <div className="pdp-thumbs">
+            {gallery.slice(0, 5).map((url, n) => (
+              <button key={n} type="button" className={n === img ? "is-on" : ""} onClick={() => setImg(n)} aria-label={`Ракурс ${n + 1}`}>
+                <ProductThumb label={`${n + 1}`} src={url} />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Информация */}

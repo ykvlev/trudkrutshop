@@ -17,6 +17,9 @@ export type Product = {
   description?: string;
   /** slug конечной категории */
   category: string;
+  /** URL основного фото (из БД); есть — показываем вместо заглушки */
+  image?: string;
+  images?: string[];
   price: number;
   oldPrice?: number;
   isNew?: boolean;

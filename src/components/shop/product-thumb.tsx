@@ -27,20 +27,23 @@ function tintFor(label: string): string {
 export function ProductThumb({
   label = "фото",
   category,
+  src,
   className = "",
   style,
 }: {
   label?: string;
   category?: string;
+  src?: string;
   className?: string;
   style?: React.CSSProperties;
 }) {
-  const file = category ? CATEGORY_IMAGE[category] : undefined;
+  // Приоритет: реальное фото товара → категорийное фото → тонированная заглушка.
+  const url = src ?? (category && CATEGORY_IMAGE[category] ? `/img/categories/${CATEGORY_IMAGE[category]}.jpg` : undefined);
 
-  if (file) {
+  if (url) {
     return (
       <div className={`ph ph-photo ${className}`} style={{ aspectRatio: "1", ...style }}>
-        <Image src={`/img/categories/${file}.jpg`} alt={label} fill sizes="(max-width: 767px) 50vw, 25vw" style={{ objectFit: "cover" }} />
+        <Image src={url} alt={label} fill sizes="(max-width: 767px) 50vw, 25vw" style={{ objectFit: "cover" }} />
       </div>
     );
   }

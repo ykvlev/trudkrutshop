@@ -36,7 +36,7 @@ function mapVariant(v: DbVariant): Variant {
 }
 
 function mapProduct(
-  p: DbProduct & { variants: DbVariant[]; category: DbCategory },
+  p: DbProduct & { variants: DbVariant[]; category: DbCategory; images?: { url: string }[] },
 ): Product {
   const variants = p.variants.map(mapVariant);
   const distinct = (xs: (string | undefined)[]) => [...new Set(xs.filter(Boolean) as string[])];
@@ -46,6 +46,8 @@ function mapProduct(
     name: p.name,
     description: p.description ?? undefined,
     category: p.category.slug,
+    image: p.images?.[0]?.url,
+    images: p.images?.map((i) => i.url),
     price: Number(p.basePrice),
     oldPrice: p.oldPrice != null ? Number(p.oldPrice) : undefined,
     isNew: p.isNew,
@@ -56,7 +58,7 @@ function mapProduct(
   };
 }
 
-const productInclude = { variants: true, category: true } as const;
+const productInclude = { variants: true, category: true, images: { orderBy: { sortOrder: "asc" as const } } } as const;
 
 // ── Категории ────────────────────────────────────────────────────
 export async function getTopCategories(): Promise<Category[]> {

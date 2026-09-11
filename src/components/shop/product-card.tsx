@@ -43,7 +43,7 @@ export function ProductCard({ product }: { product: Product }) {
           )}
           {discount !== null && <span className="badge badge-alert">−{discount}%</span>}
         </div>
-        <ProductThumb label={product.name} category={product.category} />
+        <ProductThumb label={product.name} category={product.category} src={product.image} />
       </Link>
 
       <div className="pcard-b">

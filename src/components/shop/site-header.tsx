@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useCart } from "./cart-provider";
 import { IconCart, IconChevronDown, IconClose, IconMenu, IconSearch } from "./icons";
-import { childrenOf, topCategories } from "@/lib/test-data";
+
+export type NavCategory = { slug: string; name: string; children: { slug: string; name: string }[] };
 
 const infoNav = [
   { href: "/delivery", label: "Доставка" },
@@ -13,7 +14,7 @@ const infoNav = [
   { href: "/contacts", label: "Контакты" },
 ];
 
-export function SiteHeader() {
+export function SiteHeader({ nav = [] }: { nav?: NavCategory[] }) {
   const cart = useCart();
   const [open, setOpen] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -52,7 +53,7 @@ export function SiteHeader() {
               <span className="logo-mask lg" />
             </Link>
             <nav className="hdr-quick">
-              {topCategories.map((c) => (
+              {nav.map((c) => (
                 <Link key={c.slug} href={`/catalog/${c.slug}`}>{c.name}</Link>
               ))}
             </nav>
@@ -88,8 +89,8 @@ export function SiteHeader() {
       <div className="catbar">
         <div className="wrap">
           <div className="catbar-in">
-            {topCategories.map((c) => {
-              const kids = childrenOf(c.slug);
+            {nav.map((c) => {
+              const kids = c.children;
               return (
                 <div key={c.slug} className="catbar-i">
                   <Link href={`/catalog/${c.slug}`} className="catbar-a">
@@ -120,12 +121,12 @@ export function SiteHeader() {
               </button>
             </div>
             <nav className="drawer-nav">
-              {topCategories.map((c) => (
+              {nav.map((c) => (
                 <div key={c.slug}>
                   <Link href={`/catalog/${c.slug}`} onClick={() => setOpen(false)}>{c.name}</Link>
-                  {childrenOf(c.slug).length > 0 && (
+                  {c.children.length > 0 && (
                     <div className="drawer-sub">
-                      {childrenOf(c.slug).map((k) => (
+                      {c.children.map((k) => (
                         <Link key={k.slug} href={`/catalog/${k.slug}`} onClick={() => setOpen(false)}>{k.name}</Link>
                       ))}
                     </div>
