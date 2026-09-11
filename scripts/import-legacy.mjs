@@ -70,6 +70,8 @@ const catMap = {}; // oldId -> {slug, path}
 
 // ── товары/варианты/фото ────────────────────────────────────────────
 const num = (v) => (v == null ? null : Number(v));
+// Прямые кавычки "..." → «ёлочки» в названиях.
+const eloch = (s) => (s == null ? s : s.replace(/"([^"]*)"/g, "«$1»"));
 const usedProductSlug = new Set();
 const pSlug = (base) => { let s = base; let n = 2; while (usedProductSlug.has(s)) s = `${base}-${n++}`; usedProductSlug.add(s); return s; };
 const usedSku = new Set();
@@ -141,7 +143,7 @@ for (const x of plan) {
   await prisma.product.create({
     data: {
       slug: pSlug(x.old.slug || `p${x.old.id}`),
-      name: x.old.name,
+      name: eloch(x.old.name),
       description: x.old.description || null,
       basePrice: Math.min(...x.variants.map((v) => v.price)) || 0,
       isActive: true,
