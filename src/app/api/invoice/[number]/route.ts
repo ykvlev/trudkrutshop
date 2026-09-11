@@ -22,7 +22,9 @@ export async function GET(_req: Request, ctx: RouteContext<"/api/invoice/[number
   let invoice = order.invoices[0];
   if (!invoice) {
     invoice = await prisma.invoice.create({
-      data: { number: `СЧ-${order.number}`, amount: order.total, orderId: order.id },
+      // Префикс WEB — чтобы в 1С было видно, что счёт создан на сайте (заготовка,
+      // не финальный документ; УПД/корректные счета выписываются в 1С при отгрузке).
+      data: { number: `СЧ-WEB-${order.number}`, amount: order.total, orderId: order.id },
     });
   }
 
