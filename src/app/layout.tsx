@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { actay, onest, stolzl } from "./fonts";
+import { aspekta, robotoMono } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0804ff",
+  themeColor: "#222f30",
   width: "device-width",
   initialScale: 1,
 };
@@ -48,7 +48,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ru"
-      className={`${stolzl.variable} ${onest.variable} ${actay.variable} h-full`}
+      className={`${aspekta.variable} ${robotoMono.variable} h-full`}
     >
       <body className="flex min-h-full flex-col">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />

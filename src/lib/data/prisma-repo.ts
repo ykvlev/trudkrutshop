@@ -103,6 +103,22 @@ export async function getChildren(slug: string): Promise<Category[]> {
   return kids.map((c) => mapCategory(c));
 }
 
+/** Всё дерево категорий одним запросом: корни с детьми (для навигации). */
+export async function getCategoryTree(): Promise<
+  { slug: string; name: string; children: { slug: string; name: string }[] }[]
+> {
+  const all = await prisma.category.findMany({
+    where: { isActive: true },
+    orderBy: { sortOrder: "asc" },
+  });
+  const roots = all.filter((c) => !c.parentId);
+  return roots.map((r) => ({
+    slug: r.slug,
+    name: r.name,
+    children: all.filter((c) => c.parentId === r.id).map((c) => ({ slug: c.slug, name: c.name })),
+  }));
+}
+
 // Все товары поддерева — по материализованному пути (path startsWith).
 export async function getCategoryProducts(slug: string): Promise<Product[]> {
   const cat = await prisma.category.findUnique({ where: { slug } });

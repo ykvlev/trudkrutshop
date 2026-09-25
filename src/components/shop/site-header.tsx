@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useCart } from "./cart-provider";
-import { IconCart, IconChevronDown, IconClose, IconMenu, IconSearch } from "./icons";
+import { useCartDrawer } from "./cart-drawer";
+import { IconCart, IconClose, IconMenu, IconSearch } from "./icons";
 
 export type NavCategory = { slug: string; name: string; children: { slug: string; name: string }[] };
 
@@ -16,10 +17,12 @@ const infoNav = [
 
 export function SiteHeader({ nav = [] }: { nav?: NavCategory[] }) {
   const cart = useCart();
+  const drawer = useCartDrawer();
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
-  // Мобильное меню: закрытие по Escape, фокус на кнопку закрытия, блок прокрутки.
+  // Боковое меню: Escape, фокус на закрытие, блок прокрутки.
   useEffect(() => {
     if (!open) return;
     closeRef.current?.focus();
@@ -36,96 +39,77 @@ export function SiteHeader({ nav = [] }: { nav?: NavCategory[] }) {
   return (
     <>
       <header className="hdr">
-        <div className="wrap">
-          <div className="hdr-top">
-            <nav className="hdr-nav">
-              {infoNav.map((l) => (
-                <Link key={l.href} href={l.href}>{l.label}</Link>
-              ))}
-            </nav>
-            <div className="hdr-top-r">
-              <a href="https://vk.com">РСО ВКонтакте →</a>
-            </div>
-          </div>
+        <div className="wrap hdr-bar">
+          <button
+            type="button"
+            className="menu-btn"
+            aria-label="Открыть каталог"
+            aria-expanded={open}
+            aria-controls="side-menu"
+            onClick={() => setOpen(true)}
+          >
+            <IconMenu width={22} height={22} />
+            <span className="menu-btn-t">Каталог</span>
+          </button>
 
-          <div className="hdr-main">
-            <Link href="/" className="hdr-logo" aria-label="ТрудКрутШоп — на главную">
-              <span className="logo-mask lg" />
-            </Link>
-            <nav className="hdr-quick">
-              {nav.map((c) => (
-                <Link key={c.slug} href={`/catalog/${c.slug}`}>{c.name}</Link>
-              ))}
-            </nav>
-            <form action="/search" className="search" role="search">
-              <IconSearch width={18} height={18} aria-hidden="true" />
-              <input name="q" placeholder="Поиск по магазину" aria-label="Поиск по магазину" />
-              <button type="submit" className="sr-only">Найти</button>
-            </form>
-            <Link href="/cart" className="cart-btn js-cart-target" aria-label={`Корзина, товаров: ${cart.count}`}>
-              <IconCart width={20} height={20} />
-              Корзина
-              {cart.count > 0 && <span className="cart-n">{cart.count}</span>}
-            </Link>
-          </div>
+          <Link href="/" className="hdr-logo" aria-label="ТрудКрутШоп — на главную">
+            {/* eslint-disable-next-line @next/next/no-img-element -- статичный логотип-эмблема */}
+            <img src="/brand/logo-2026.svg" alt="ТрудКрут" className="hdr-logo-img" />
+          </Link>
 
-          {/* Мобильная строка */}
-          <div className="hdr-m">
-            <button type="button" className="ibtn" aria-label="Открыть меню" aria-expanded={open} aria-controls="mobile-drawer" onClick={() => setOpen(true)}>
-              <IconMenu />
-            </button>
-            <Link href="/" className="hdr-logo" aria-label="ТрудКрутШоп — на главную">
-              <span className="logo-mask lg" />
-            </Link>
-            <Link href="/cart" className="ibtn js-cart-target" style={{ position: "relative" }} aria-label={`Корзина, товаров: ${cart.count}`}>
-              <IconCart />
-              {cart.count > 0 && <span className="cart-n">{cart.count}</span>}
-            </Link>
-          </div>
+          <form action="/search" className="search" role="search">
+            <IconSearch width={18} height={18} aria-hidden="true" />
+            <input name="q" placeholder="Поиск" aria-label="Поиск по магазину" />
+            <button type="submit" className="sr-only">Найти</button>
+          </form>
+
+          <Link href="/search" className="ibtn ibtn-search-m" aria-label="Поиск">
+            <IconSearch width={20} height={20} />
+          </Link>
+
+          <button
+            type="button"
+            className="ibtn js-cart-target cart-icon"
+            aria-label={`Корзина, товаров: ${cart.count}`}
+            onClick={() => drawer.open()}
+          >
+            <IconCart width={22} height={22} />
+            {cart.count > 0 && <span className="cart-n">{cart.count}</span>}
+          </button>
         </div>
       </header>
 
-      {/* Панель категорий с выпадашками */}
-      <div className="catbar">
-        <div className="wrap">
-          <div className="catbar-in">
-            {nav.map((c) => {
-              const kids = c.children;
-              return (
-                <div key={c.slug} className="catbar-i">
-                  <Link href={`/catalog/${c.slug}`} className="catbar-a">
-                    {c.name}
-                    {kids.length > 0 && <IconChevronDown width={14} height={14} />}
-                  </Link>
-                  {kids.length > 0 && (
-                    <div className="dd">
-                      {kids.map((k) => (
-                        <Link key={k.slug} href={`/catalog/${k.slug}`}>{k.name}</Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
       {open && (
-        <div className="mask" onClick={() => setOpen(false)}>
-          <div id="mobile-drawer" className="drawer" role="dialog" aria-modal="true" aria-label="Меню" onClick={(e) => e.stopPropagation()}>
+        <div className="mask mask-left" onClick={() => setOpen(false)}>
+          <div id="side-menu" className="drawer" role="dialog" aria-modal="true" aria-label="Каталог" onClick={(e) => e.stopPropagation()}>
             <div className="drawer-h">
-              <span className="hdr-logo" style={{ color: "var(--rso-blue)" }}><span className="logo-mask lg" /></span>
+              <span className="drawer-title">Каталог</span>
               <button ref={closeRef} type="button" className="ibtn" aria-label="Закрыть меню" onClick={() => setOpen(false)}>
                 <IconClose />
               </button>
             </div>
+
             <nav className="drawer-nav">
               {nav.map((c) => (
-                <div key={c.slug}>
-                  <Link href={`/catalog/${c.slug}`} onClick={() => setOpen(false)}>{c.name}</Link>
-                  {c.children.length > 0 && (
+                <div key={c.slug} className="drawer-cat">
+                  {c.children.length > 0 ? (
+                    <button
+                      type="button"
+                      className={`drawer-cat-h${expanded === c.slug ? " is-open" : ""}`}
+                      aria-expanded={expanded === c.slug}
+                      onClick={() => setExpanded(expanded === c.slug ? null : c.slug)}
+                    >
+                      <span>{c.name}</span>
+                      <span className="drawer-plus">{expanded === c.slug ? "–" : "+"}</span>
+                    </button>
+                  ) : (
+                    <Link href={`/catalog/${c.slug}`} className="drawer-cat-h" onClick={() => setOpen(false)}>
+                      <span>{c.name}</span>
+                    </Link>
+                  )}
+                  {c.children.length > 0 && expanded === c.slug && (
                     <div className="drawer-sub">
+                      <Link href={`/catalog/${c.slug}`} onClick={() => setOpen(false)}>Все · {c.name}</Link>
                       {c.children.map((k) => (
                         <Link key={k.slug} href={`/catalog/${k.slug}`} onClick={() => setOpen(false)}>{k.name}</Link>
                       ))}
@@ -133,9 +117,13 @@ export function SiteHeader({ nav = [] }: { nav?: NavCategory[] }) {
                   )}
                 </div>
               ))}
+              <Link href="/certificates" className="drawer-cat-h" onClick={() => setOpen(false)}>
+                <span>Подарочные сертификаты</span>
+              </Link>
             </nav>
+
             <div className="drawer-div" />
-            <nav className="drawer-nav">
+            <nav className="drawer-info">
               {infoNav.map((l) => (
                 <Link key={l.href} href={l.href} onClick={() => setOpen(false)}>{l.label}</Link>
               ))}

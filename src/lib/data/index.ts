@@ -10,7 +10,12 @@
 //   // станет:
 //   import * as source from "./prisma-repo";
 
-import * as source from "./prisma-repo";
+// Источник данных: Prisma (БД) по умолчанию; при DATA_SOURCE=mock —
+// статические тестовые данные (для локального просмотра фронтенда без БД).
+import * as prismaSource from "./prisma-repo";
+import * as mockSource from "./mock-repo";
+
+const source = process.env.DATA_SOURCE === "mock" ? mockSource : prismaSource;
 
 export type { Product, Category, Variant } from "@/lib/test-data";
 
@@ -19,6 +24,7 @@ export const getCategory = source.getCategory;
 export const getBreadcrumb = source.getBreadcrumb;
 export const isLeafCategory = source.isLeafCategory;
 export const getChildren = source.getChildren;
+export const getCategoryTree = source.getCategoryTree;
 export const getCategoryProducts = source.getCategoryProducts;
 export const getProduct = source.getProduct;
 export const getSimilar = source.getSimilar;

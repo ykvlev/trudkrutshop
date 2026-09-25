@@ -1,7 +1,26 @@
 import localFont from "next/font/local";
+import { Inter_Tight, Roboto_Mono } from "next/font/google";
+
+// Дизайн-система (ТЗ 2026): Aspekta — единственная дисплейно-текстовая гарнитура,
+// один вес 400, иерархия задаётся размером и трекингом. Замена — Inter Tight 400.
+export const aspekta = Inter_Tight({
+  variable: "--font-aspekta",
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500"],
+  display: "swap",
+});
 
 // Фирменные шрифты РСО, self-hosted через next/font/local (файлы в ./_fonts).
 // Stolzl — дисплей/заголовки, Onest — текст, Actay Wide — акцентные лейблы.
+// Roboto Mono — технические лейблы, навигация, счётчики секций, мета, кнопки
+// (роль «приборного» моно из дизайн-системы; вес 400).
+
+export const robotoMono = Roboto_Mono({
+  variable: "--font-roboto-mono",
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500"],
+  display: "swap",
+});
 
 export const stolzl = localFont({
   variable: "--font-stolzl",

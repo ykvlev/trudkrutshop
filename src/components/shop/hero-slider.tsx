@@ -40,16 +40,20 @@ export function HeroSlider() {
         ))}
       </div>
 
-      <button type="button" className="slider-a slider-l" aria-label="Предыдущий слайд" onClick={() => go(-1)}>
-        <IconArrowLeft />
-      </button>
-      <button type="button" className="slider-a slider-r" aria-label="Следующий слайд" onClick={() => go(1)}>
-        <IconArrowRight />
-      </button>
-      <div className="slider-dots">
-        {slides.map((_, idx) => (
-          <button key={idx} type="button" className={idx === i ? "is-on" : ""} aria-label={`Слайд ${idx + 1}`} aria-current={idx === i} onClick={() => setI(idx)} />
-        ))}
+      <div className="slider-nav">
+        <div className="slider-dots">
+          {slides.map((_, idx) => (
+            <button key={idx} type="button" className={idx === i ? "is-on" : ""} aria-label={`Слайд ${idx + 1}`} aria-current={idx === i} onClick={() => setI(idx)} />
+          ))}
+        </div>
+        <div className="slider-arrows">
+          <button type="button" className="slider-a slider-l" aria-label="Предыдущий слайд" onClick={() => go(-1)}>
+            <IconArrowLeft width={18} height={18} />
+          </button>
+          <button type="button" className="slider-a slider-r" aria-label="Следующий слайд" onClick={() => go(1)}>
+            <IconArrowRight width={18} height={18} />
+          </button>
+        </div>
       </div>
     </section>
   );
