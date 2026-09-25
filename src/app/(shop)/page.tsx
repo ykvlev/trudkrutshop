@@ -22,9 +22,10 @@ export default async function HomePage() {
   const shuffled = seededShuffle(all, currentSeed());
 
   return (
-    <div className="wrap" style={{ paddingTop: 20, paddingBottom: 40 }}>
+    <>
       <HeroSlider />
 
+      <div className="wrap" style={{ paddingTop: 20, paddingBottom: 40 }}>
       <div className="strip">
         {features.map((f) => (
           <div className="strip-i" key={f.t}>
@@ -52,7 +53,8 @@ export default async function HomePage() {
       </section>
 
       <Section counter="03" title="Весь каталог" items={shuffled} />
-    </div>
+      </div>
+    </>
   );
 }
 
