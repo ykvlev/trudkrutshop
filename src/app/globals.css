@@ -26,10 +26,10 @@
   --rso-blue-tint: #e7e8e1;   /* tissue — мягкая нейтральная плашка */
   --rso-blue-ink: #222f30;
 
-  /* Акцент — bioluminescent lime (нормируется!) */
-  --rso-accent: #cef79e;
-  --rso-accent-ink: #222f30;  /* текст/иконка на лайме */
-  --rso-accent-wash: #eef7e2; /* очень бледный лайм для тонких подсветок */
+  /* Акцент — синий РСО (нормируется как и раньше: только микро-поверхности) */
+  --rso-accent: #0804ff;
+  --rso-accent-ink: #ffffff;  /* текст/иконка на синем */
+  --rso-accent-wash: #eceaff; /* очень бледный синий для тонких подсветок */
 
   --rso-white: #ffffff;
   --rso-grey: #e7e8e1;        /* tissue */
