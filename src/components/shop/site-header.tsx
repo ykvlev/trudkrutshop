@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCart } from "./cart-provider";
 import { useCartDrawer } from "./cart-drawer";
 import { IconCart, IconClose, IconMenu, IconSearch } from "./icons";
@@ -21,6 +22,18 @@ export function SiteHeader({ nav = [] }: { nav?: NavCategory[] }) {
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+  const [scrolled, setScrolled] = useState(false);
+
+  // На главной шапка прозрачная поверх фото и «затвердевает» после прокрутки.
+  useEffect(() => {
+    if (!isHome) return;
+    const onScroll = () => setScrolled(window.scrollY > window.innerHeight - 120);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isHome]);
 
   // Боковое меню: Escape, фокус на закрытие, блок прокрутки.
   useEffect(() => {
@@ -38,7 +51,7 @@ export function SiteHeader({ nav = [] }: { nav?: NavCategory[] }) {
 
   return (
     <>
-      <header className="hdr">
+      <header className={`hdr${isHome ? " hdr-over" : ""}${isHome && scrolled ? " is-scrolled" : ""}`}>
         <div className="wrap hdr-bar">
           <button
             type="button"

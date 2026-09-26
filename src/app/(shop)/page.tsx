@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { HeroSlider } from "@/components/shop/hero-slider";
 import { ProductCard } from "@/components/shop/product-card";
 import { Icon } from "@/components/ui/icon";
 import { currentSeed, seededShuffle } from "@/lib/format";
@@ -23,7 +22,15 @@ export default async function HomePage() {
 
   return (
     <>
-      <HeroSlider />
+      {/* Главный экран: одно фото на весь экран, шапка накладывается поверх. */}
+      <section className="hero">
+        {/* eslint-disable-next-line @next/next/no-img-element -- full-bleed фон-кадр */}
+        <img className="hero-bg" src="/img/hero-rso.jpg" alt="" aria-hidden="true" />
+        <div className="hero-in wrap">
+          <h1 className="hero-title">#трудкрут,<br />а ты ещё круче</h1>
+          <Link href="/catalog/futbolki" className="hero-cta">Смотреть каталог →</Link>
+        </div>
+      </section>
 
       <div className="wrap" style={{ paddingTop: 20, paddingBottom: 40 }}>
       <div className="strip">

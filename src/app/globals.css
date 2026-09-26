@@ -18,37 +18,42 @@
      поверхностях — стрелки-CTA 40×40, точки тегов 6px, активные пилюли.
      НИКОГДА как фон под текст, большие плашки или градиенты. */
 
-  /* «Синяя» роль = основной нейтральный тёмный (текст, границы, тёмные действия) */
-  --rso-blue: #222f30;        /* abyssal ink — основной нейтрал */
-  --rso-blue-bright: #2e3d3e; /* hover тёмной кнопки */
-  --rso-blue-poster: #1a2425;
-  --rso-blue-deep: #141d1e;   /* active */
-  --rso-blue-tint: #e7e8e1;   /* tissue — мягкая нейтральная плашка */
-  --rso-blue-ink: #222f30;
+  /* ── Швейцарский минимализм: чистый монохром. Ни одного хроматического
+     акцента — иерархия через типографику, воздух и hairline-линии.
+     «Синяя»/«акцентная» роли перенацелены на чёрно-серую шкалу, чтобы весь
+     интерфейс стал монохромным без правки каждого компонента. */
 
-  /* Акцент — синий РСО (нормируется как и раньше: только микро-поверхности) */
-  --rso-accent: #0804ff;
-  --rso-accent-ink: #ffffff;  /* текст/иконка на синем */
-  --rso-accent-wash: #eceaff; /* очень бледный синий для тонких подсветок */
+  /* Основной нейтрал (текст, границы, действия) */
+  --rso-blue: #111111;        /* почти чёрный — ink/действия */
+  --rso-blue-bright: #333333; /* hover */
+  --rso-blue-poster: #1a1a1a;
+  --rso-blue-deep: #000000;   /* active */
+  --rso-blue-tint: #f4f4f4;   /* светло-серая плашка */
+  --rso-blue-ink: #111111;
+
+  /* «Акцент» = чёрный (без цвета) */
+  --rso-accent: #111111;
+  --rso-accent-ink: #ffffff;
+  --rso-accent-wash: #f4f4f4;
 
   --rso-white: #ffffff;
-  --rso-grey: #e7e8e1;        /* tissue */
-  --rso-black: #000000;       /* void — только подвал/якоря */
+  --rso-grey: #ececec;
+  --rso-black: #000000;
 
-  --rso-surface: #ffffff;         /* paper — карточки */
-  --rso-surface-muted: #eeeeee;   /* frost — нейтральная светлая плашка */
-  --rso-surface-footer: #000000;  /* void — подвал */
-  --rso-surface-grey: #f7f7f5;    /* bone white — канва страницы */
-  --rso-surface-dark: #222f30;    /* тёмные секции (герой, баннеры) */
-  --rso-border: #c9cbbe;          /* lichen — hairline на свету */
-  --rso-border-soft: #d3d5c9;
-  --rso-border-faint: #e3e4dc;
-  --rso-border-dark: #4d5757;     /* hairline на тёмном (graphite) */
-  --rso-hairline: #c9cbbe;
-  --rso-text-muted: #4d5757;      /* graphite */
-  --rso-text-dim: #808984;
-  --rso-alert: #b5432e;           /* приглушённый функциональный сигнал (нет в наличии) */
-  --rso-alert-strong: #8f3221;
+  --rso-surface: #ffffff;         /* карточки */
+  --rso-surface-muted: #f5f5f5;   /* нейтральная светлая плашка */
+  --rso-surface-footer: #000000;  /* подвал — единственный тёмный якорь */
+  --rso-surface-grey: #ffffff;    /* канва страницы — чистый белый */
+  --rso-surface-dark: #111111;    /* редкие тёмные секции */
+  --rso-border: #e6e6e6;          /* hairline */
+  --rso-border-soft: #e0e0e0;
+  --rso-border-faint: #ededed;
+  --rso-border-dark: #333333;     /* hairline на тёмном */
+  --rso-hairline: #d8d8d8;
+  --rso-text-muted: #6b6b6b;
+  --rso-text-dim: #9a9a9a;
+  --rso-alert: #111111;           /* сигнал «нет в наличии» — тоже монохром */
+  --rso-alert-strong: #000000;
 
   /* Шрифты дизайн-системы → next/font/google переменные.
      Aspekta (Inter Tight) — единственная дисплейно-текстовая гарнитура, вес 400.
@@ -88,13 +93,13 @@
   --spacing-100: 100px; --spacing-160: 160px;
   --section-gap: 100px;   /* ритм между секциями 80–120px */
 
-  /* ── Дизайн-система: радиусы (плоские поверхности, острее прежнего).
-     кнопки 8 · нав 12 · карточки 16–20 · крупные карточки 40 · теги-пилюли. */
-  --radius-btn: 8px;
-  --radius-nav: 12px;
-  --radius-card-sm: 16px;
-  --radius-card-md: 20px;
-  --radius-card-lg: 40px;
+  /* ── Швейцарский минимализм: прямоугольные формы, без скруглений.
+     Пилюля остаётся только для круглых точек-индикаторов. */
+  --radius-btn: 0px;
+  --radius-nav: 0px;
+  --radius-card-sm: 0px;
+  --radius-card-md: 0px;
+  --radius-card-lg: 0px;
   --radius-pill: 9999px;
 
   --page-max-width: 1200px;
@@ -117,8 +122,8 @@
   --color-success: var(--rso-blue-deep);
   --color-danger: var(--rso-alert);
 
-  --radius-control: 8px;
-  --radius-card: 20px;
+  --radius-control: 0px;
+  --radius-card: 0px;
 
   --breakpoint-*: initial;
   --breakpoint-xs: 22.5rem;
@@ -179,26 +184,36 @@ h1, h2, h3, [id] { scroll-margin-top: 120px; }
 
 /* ─── Шапка ──────────────────────────────────────────────────────── */
 /* Минимал: чёрная плашка, бургер-каталог, лого-эмблема, поиск, корзина. */
-.hdr { background: var(--rso-surface-dark); color: #fff; position: sticky; top: 0; z-index: 40; border-bottom: 1px solid var(--rso-border-dark); }
-.hdr a { color: #fff; }
+/* Швейцарская шапка: по умолчанию белая с чёрным текстом и hairline снизу.
+   На главной — прозрачная поверх фото (белый текст), «затвердевает» в белую
+   при прокрутке. */
+.hdr { background: #fff; color: var(--rso-black); position: sticky; top: 0; z-index: 40; border-bottom: 1px solid var(--rso-border); transition: background .25s, color .25s, border-color .25s; }
+.hdr a { color: inherit; }
 .hdr-bar { display: flex; align-items: center; gap: 16px; height: 68px; }
-/* «Каталог» — навигационная пилюля (outlined) из дизайн-системы. */
-.menu-btn { display: inline-flex; align-items: center; gap: 10px; height: 40px; padding: 0 16px; border: 1px solid var(--rso-border-dark); border-radius: var(--radius-nav); background: transparent; color: #fff; cursor: pointer; font-family: var(--font-mono); font-size: 13px; letter-spacing: -0.02em; }
-.menu-btn:hover { background: var(--rso-accent); border-color: var(--rso-accent); color: var(--rso-accent-ink); }
+/* «Каталог» — минималистичная кнопка-текст с иконкой. */
+.menu-btn { display: inline-flex; align-items: center; gap: 10px; height: 40px; padding: 0 12px 0 0; border: 0; background: transparent; color: inherit; cursor: pointer; font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+.menu-btn:hover { opacity: .6; }
+
+/* Оверлей на главной поверх фото. */
+.hdr.hdr-over { position: fixed; left: 0; right: 0; top: 0; background: transparent; color: #fff; border-bottom-color: transparent; }
+.hdr.hdr-over .ibtn { background: transparent; color: #fff; }
+.hdr.hdr-over.is-scrolled { background: #fff; color: var(--rso-black); border-bottom-color: var(--rso-border); }
+.hdr.hdr-over.is-scrolled .ibtn { color: var(--rso-black); }
 .menu-btn-t { font-family: var(--font-mono); text-transform: uppercase; font-size: 13px; letter-spacing: .04em; }
 .hdr-logo { display: inline-flex; align-items: center; height: 40px; color: #fff; }
-.hdr-logo-img { height: 40px; width: auto; display: block; }
+.hdr-logo-img { height: 40px; width: auto; display: block; filter: invert(1); transition: filter .25s; }
+.hdr.hdr-over .hdr-logo-img { filter: none; }
+.hdr.hdr-over.is-scrolled .hdr-logo-img { filter: invert(1); }
 /* Логотип-маска (подвал/админка) — красится currentColor */
 .logo-mask { display: block; background: currentColor; -webkit-mask: url(/brand/mark-trudkrut.svg) center/contain no-repeat; mask: url(/brand/mark-trudkrut.svg) center/contain no-repeat; }
 .logo-mask.lg { height: 34px; aspect-ratio: 245 / 112; }
 .logo-mask.sm { height: 26px; aspect-ratio: 245 / 112; }
-.search { display: flex; align-items: center; gap: 10px; flex: 1; max-width: 440px; margin-left: auto; background: transparent; border: 1px solid var(--rso-border-dark); border-radius: var(--radius-nav); padding: 0 16px; height: 40px; color: #fff; }
-.search input { font-family: var(--font-mono); font-size: 13px; letter-spacing: -0.02em; }
-.search input { background: none; border: 0; outline: none; color: #fff; width: 100%; }
-.search input::placeholder { color: rgba(255,255,255,.55); }
+.search { display: flex; align-items: center; gap: 10px; flex: 1; max-width: 440px; margin-left: auto; background: transparent; border: 0; border-bottom: 1px solid currentColor; border-radius: 0; padding: 0 4px; height: 40px; color: inherit; opacity: .9; }
+.search input { background: none; border: 0; outline: none; color: inherit; width: 100%; font-family: var(--font-mono); font-size: 13px; letter-spacing: -0.02em; }
+.search input::placeholder { color: currentColor; opacity: .5; }
 .ibtn-search-m { display: none; }
 .hdr .ibtn.cart-icon { background: transparent; position: relative; }
-.hdr .ibtn.cart-icon:hover { background: rgba(255,255,255,.1); }
+.hdr .ibtn.cart-icon:hover { background: transparent; opacity: .6; }
 .cart-n { position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; border-radius: var(--radius-pill); background: var(--rso-accent); color: var(--rso-accent-ink); font-family: var(--font-mono); font-size: 11px; font-weight: 500; display: grid; place-items: center; padding: 0 5px; }
 
 /* «Улёт» товара в корзину */
@@ -254,7 +269,8 @@ h1, h2, h3, [id] { scroll-margin-top: 120px; }
 .btn:disabled { opacity: .4; cursor: not-allowed; }
 .ibtn { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-nav); background: var(--rso-surface-muted); border: 0; color: var(--rso-black); cursor: pointer; }
 .ibtn:hover { background: var(--rso-grey); }
-.hdr .ibtn { background: rgba(255,255,255,.16); color: #fff; }
+.hdr .ibtn { background: transparent; color: inherit; }
+.hdr .ibtn:hover { opacity: .6; background: transparent; }
 /* Кнопка-добавление «+» — лаймовый CTA (единственная зона акцента-заливки). */
 .ibtn-cart { background: var(--rso-accent); border: 1px solid var(--rso-accent); color: var(--rso-accent-ink); border-radius: var(--radius-btn); transition: filter .16s, transform .12s; }
 .ibtn-cart:hover { filter: brightness(.95); background: var(--rso-accent); color: var(--rso-accent-ink); }
@@ -305,31 +321,17 @@ h1, h2, h3, [id] { scroll-margin-top: 120px; }
 @keyframes sk { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 @media (prefers-reduced-motion: reduce) { .sk { animation: none; } }
 
-/* ─── Слайдер ────────────────────────────────────────────────────── */
-/* Герой — full-bleed тёмная секция во всю ширину страницы, с фоновым фото
-   слайда и градиентом слева для читаемости заголовка. Крупная дисплейная
-   строка, много воздуха. Навигация внизу выровнена по колонке контента. */
-.slider { position: relative; width: 100%; overflow: hidden; background: var(--rso-surface-dark); color: #fff; margin-bottom: 60px; }
-.slider-track { display: flex; transition: transform .6s cubic-bezier(.16,1,.3,1); }
-.slide { flex: 0 0 100%; position: relative; overflow: hidden; }
-/* Фон-фото + градиент abyssal слева → прозрачный справа. */
-.slide-bg { position: absolute; inset: 0; background-position: center; background-size: cover; z-index: 0; }
-.slide-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, var(--rso-surface-dark) 0%, var(--rso-surface-dark) 34%, rgba(34,47,48,.72) 60%, rgba(34,47,48,.5) 100%); }
-.slider-in { position: relative; z-index: 1; max-width: var(--page-max-width); margin: 0 auto; padding: 104px 34px 128px; min-height: 520px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 8px; }
-.slider-in h2 { font-family: var(--font-display); font-size: clamp(52px, 7vw, var(--text-display-lg)); line-height: var(--leading-display-lg); letter-spacing: var(--tracking-display-lg); margin: 8px 0 20px; max-width: 12ch; }
-.slider-in p { max-width: 40ch; color: rgba(255,255,255,.78); margin-bottom: 24px; font-size: var(--text-body); }
-.slider-in .label-w { color: rgba(255,255,255,.6); }
-/* Панель навигации внизу: точки слева, стрелки справа, по колонке контента. */
-.slider-nav { position: absolute; left: 0; right: 0; bottom: 32px; z-index: 2; }
-.slider-nav-in { max-width: var(--page-max-width); margin: 0 auto; padding: 0 34px; display: flex; align-items: center; justify-content: space-between; }
-.slider-arrows { display: flex; gap: 10px; }
-.slider-a { width: 40px; height: 40px; border-radius: var(--radius-btn); border: 1px solid var(--rso-border-dark); background: transparent; display: grid; place-items: center; cursor: pointer; color: #fff; }
-.slider-a:hover { border-color: rgba(255,255,255,.5); }
-.slider-a.slider-r { background: var(--rso-accent); border-color: var(--rso-accent); color: var(--rso-accent-ink); }
-.slider-a.slider-r:hover { filter: brightness(.95); }
-.slider-dots { display: flex; gap: 8px; }
-.slider-dots button { width: 8px; height: 8px; padding: 0; border-radius: 50%; border: 0; background: rgba(255,255,255,.3); cursor: pointer; transition: background .16s, width .16s; }
-.slider-dots button.is-on { background: var(--rso-accent); width: 22px; border-radius: 4px; }
+/* ─── Герой ──────────────────────────────────────────────────────────
+   Первый экран: одно фото на всю ширину и высоту вьюпорта, шапка
+   накладывается поверх. Текст — минимальный, внизу слева, белым по фото. */
+.hero { position: relative; width: 100%; height: 100vh; min-height: 560px; overflow: hidden; margin-bottom: var(--section-gap); }
+.hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+/* Лёгкие затемнения сверху (под шапку) и снизу (под текст) — фото не «глушим». */
+.hero::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,.28) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 55%, rgba(0,0,0,.45) 100%); }
+.hero-in { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; margin: 0 auto; padding-top: 0; padding-bottom: 64px; display: flex; flex-direction: column; align-items: flex-start; gap: 24px; color: #fff; }
+.hero-title { font-family: var(--font-display); font-weight: 400; color: #fff; font-size: clamp(44px, 6.5vw, var(--text-display)); line-height: 1.02; letter-spacing: var(--tracking-display); margin: 0; }
+.hero-cta { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 14px; letter-spacing: .02em; color: #fff; border-bottom: 1px solid rgba(255,255,255,.7); padding-bottom: 4px; }
+.hero-cta:hover { color: #fff; border-bottom-color: #fff; }
 
 /* ─── Полосы/секции ──────────────────────────────────────────────── */
 .strip { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin: 0 0 44px; }
@@ -349,16 +351,15 @@ h1, h2, h3, [id] { scroll-margin-top: 120px; }
 
 /* ─── Сетка товаров ──────────────────────────────────────────────── */
 .pgrid { display: grid; grid-template-columns: repeat(var(--cols,3),minmax(0,1fr)); gap: 14px; }
-/* Плоская карточка: глубина только через границу (без теней). */
-.pcard { border: 1px solid var(--rso-border); border-radius: var(--radius-card-md); overflow: hidden; background: #fff; display: flex; flex-direction: column; transition: border-color .18s, transform .2s cubic-bezier(.22,.61,.36,1); }
-.pcard:hover { border-color: var(--rso-blue); transform: translateY(-4px); }
-.pcard-img { display: block; position: relative; padding: 14px 14px 0; }
-.pcard-img .ph { border-radius: var(--radius-card-sm); aspect-ratio: 1; overflow: hidden; }
+/* Editorial-карточка: без рамок, чистая сетка. Изображение + подпись снизу. */
+.pcard { border: 0; border-radius: 0; overflow: hidden; background: transparent; display: flex; flex-direction: column; }
+.pcard-img { display: block; position: relative; padding: 0; }
+.pcard-img .ph { border-radius: 0; aspect-ratio: 3 / 4; overflow: hidden; background: var(--rso-surface-muted); }
 .pcard-img .ph img { transition: transform .4s cubic-bezier(.22,.61,.36,1); }
 .pcard:hover .ph-photo img { transform: scale(1.06); }
 @media (prefers-reduced-motion: reduce) { .pcard:hover { transform: none; } .pcard:hover .ph-photo img { transform: none; } }
-.pcard-badges { position: absolute; top: 24px; left: 24px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
-.pcard-b { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.pcard-badges { position: absolute; top: 12px; left: 12px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.pcard-b { padding: 14px 2px 4px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
 .pcard-n { font-family: var(--font-core); font-size: 16px; line-height: 1.25; color: var(--rso-black); transition: color .16s; }
 .pcard-n:hover { color: var(--rso-blue); }
 .pcard-f { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; }
