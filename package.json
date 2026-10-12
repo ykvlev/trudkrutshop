@@ -46,5 +46,8 @@
     "tsx": "^4.20.6",
     "typescript": "^5",
     "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "rollup": "4.63.0"
   }
 }

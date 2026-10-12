@@ -45,8 +45,8 @@ export default async function HomePage() {
         ))}
       </div>
 
-      <Section counter="01" title="Хиты продаж" href="/catalog/futbolki" items={bestsellers} />
-      <Section counter="02" title="Новинки" href="/catalog/znachki" items={fresh} />
+      <Section title="Хиты продаж" href="/catalog/futbolki" items={bestsellers} />
+      <Section title="Новинки" href="/catalog/znachki" items={fresh} />
 
       <section className="band">
         <div>
@@ -59,21 +59,17 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <Section counter="03" title="Весь каталог" items={shuffled} />
+      <Section title="Весь каталог" items={shuffled} />
       </div>
     </>
   );
 }
 
 function Section({
-  eyebrow,
-  counter,
   title,
   items,
   href,
 }: {
-  eyebrow?: string;
-  counter?: string;
   title: string;
   items: Product[];
   href?: string;
@@ -83,8 +79,6 @@ function Section({
     <section>
       <div className="sec-h">
         <div>
-          {counter && <span className="sec-count">{counter} / 03</span>}
-          {eyebrow && <p className="label">{eyebrow}</p>}
           <h2>{title}</h2>
         </div>
         {href && <Link href={href} className="link">Все товары →</Link>}

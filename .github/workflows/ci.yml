@@ -1,59 +1,23 @@
-name: CI
-
+name: CI/CD
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
-
-# Отменяем предыдущие прогоны на той же ветке.
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
+  group: delivery-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
-  quality:
-    name: Проверки (lint · types · tests · build)
+  build-test-package:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          # npm-кэш не включаем: package-lock.json в репозитории нет.
-
-      - name: Установка зависимостей
-        run: npm install --no-audit --no-fund
-
-      - name: Генерация Prisma Client
-        run: npx prisma generate
-
-      - name: Проверка схемы Prisma
-        run: npx prisma validate
-
-      - name: Генерация типов роутов Next
-        run: npx next typegen
-
-      - name: Линт
-        run: npm run lint
-
-      - name: Проверка типов
-        run: npm run typecheck
-
-      - name: Юнит-тесты
-        run: npm test
-
-      - name: Сборка
-        run: npm run build
-        env:
-          # Витрина рендерится на тестовых данных; БД для сборки не нужна,
-          # но переменные должны существовать (импорт client).
-          DATABASE_URL: "postgresql://user:pass@localhost:5432/tksh?schema=public"
-
-  database:
-    name: Миграции и сид (Postgres)
-    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://tksh:tksh@localhost:5432/tksh_test?schema=public
+      TEST_DATABASE_URL: postgresql://tksh:tksh@localhost:5432/tksh_test?schema=public
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
     services:
       postgres:
         image: postgres:16
@@ -61,31 +25,149 @@ jobs:
           POSTGRES_USER: tksh
           POSTGRES_PASSWORD: tksh
           POSTGRES_DB: tksh_test
-        ports:
-          - 5432:5432
+        ports: ['5432:5432']
         options: >-
           --health-cmd "pg_isready -U tksh"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    env:
-      DATABASE_URL: "postgresql://tksh:tksh@localhost:5432/tksh_test?schema=public"
-      TEST_DATABASE_URL: "postgresql://tksh:tksh@localhost:5432/tksh_test?schema=public"
+          --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-
-      - name: Установка зависимостей
-        run: npm install --no-audit --no-fund
-
-      - name: Применение схемы к чистой БД (+ генерация клиента для сида)
-        run: npx prisma db push --accept-data-loss
-
-      - name: Сид тестовыми данными
-        run: npm run db:seed
-
-      - name: Интеграционные тесты (БД)
-        run: npm run test:integration
+          node-version: 24
+      - name: Dependencies
+        run: |
+          npm ci --include=optional
+          npm install --no-save --package-lock=false @rollup/rollup-linux-x64-gnu@4.63.0
+      - name: Validate schema
+        run: npx prisma validate
+      - name: Build (pull requests)
+        if: github.event_name == 'pull_request'
+        run: npm run build
+      - name: Install Vercel CLI
+        if: github.event_name != 'pull_request'
+        run: npm install --global vercel@59.3.0
+      - name: Build deployable artifact
+        if: github.event_name != 'pull_request'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          vercel build --prod --token="$VERCEL_TOKEN"
+      - name: Test code
+        run: |
+          npm run lint
+          npm run typecheck
+          npm test
+      - name: Test database
+        run: |
+          npx prisma db push
+          npm run db:seed
+          npm run test:integration
+      - name: Package
+        if: github.event_name != 'pull_request'
+        run: |
+          tar -czf release.tar.gz .vercel/output .vercel/project.json
+          sha256sum release.tar.gz > release.tar.gz.sha256
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
+        with:
+          name: release
+          path: |
+            release.tar.gz
+            release.tar.gz.sha256
+          retention-days: 7
+  registry:
+    needs: build-test-package
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      reference: ${{ steps.publish.outputs.reference }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.2.3
+      - name: Publish immutable release
+        id: publish
+        env:
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$REGISTRY_TOKEN" | oras login ghcr.io --username "${{ github.actor }}" --password-stdin
+          IMAGE="ghcr.io/${{ github.repository }}/web-release"
+          oras push "$IMAGE:${{ github.sha }}" --annotation "org.opencontainers.image.source=https://github.com/${{ github.repository }}" release.tar.gz:application/gzip release.tar.gz.sha256:text/plain
+          DIGEST=$(oras resolve "$IMAGE:${{ github.sha }}")
+          echo "reference=$IMAGE@$DIGEST" >> "$GITHUB_OUTPUT"
+  staging:
+    needs: registry
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ steps.deploy.outputs.url }}
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.2.3
+      - name: Pull verified artifact
+        env:
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$REGISTRY_TOKEN" | oras login ghcr.io --username "${{ github.actor }}" --password-stdin
+          oras pull '${{ needs.registry.outputs.reference }}'
+          sha256sum -c release.tar.gz.sha256
+          tar -xzf release.tar.gz
+          npm install --global vercel@59.3.0
+      - name: Deploy to staging without changing production domain
+        id: deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          URL=$(vercel deploy --prebuilt --prod --skip-domain --yes --token="$VERCEL_TOKEN")
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Staging: $URL" >> "$GITHUB_STEP_SUMMARY"
+      - name: Smoke tests on staging
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          DEPLOYMENT: ${{ steps.deploy.outputs.url }}
+        run: |
+          for ROUTE in / /catalog/futbolki /certificates; do
+            vercel curl "$ROUTE" --deployment "$DEPLOYMENT" --token="$VERCEL_TOKEN" -- --fail --retry 3 --retry-delay 5 --output /tmp/page.html
+            test -s /tmp/page.html
+          done
+          grep -q 'cert-title' /tmp/page.html
+  production:
+    needs: staging
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://trudkrutshop.vercel.app
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Promote tested deployment
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          DEPLOYMENT: ${{ needs.staging.outputs.url }}
+        run: |
+          npm install --global vercel@59.3.0
+          mkdir -p .vercel
+          printf '{"orgId":"%s","projectId":"%s"}' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
+          vercel promote "$DEPLOYMENT" --yes --token="$VERCEL_TOKEN"
+          curl --fail --retry 3 https://trudkrutshop.vercel.app/certificates -o /tmp/production.html
+          grep -q 'cert-title' /tmp/production.html
+          echo 'Production: https://trudkrutshop.vercel.app' >> "$GITHUB_STEP_SUMMARY"

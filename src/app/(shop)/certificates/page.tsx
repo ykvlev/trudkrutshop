@@ -6,10 +6,10 @@ import { formatPrice } from "@/lib/format";
 import { createCertificateOrder } from "@/lib/actions";
 
 const DESIGNS = [
-  { id: "blue", name: "Синий", color: "#0804ff" },
-  { id: "deep", name: "Глубокий", color: "#0040cb" },
-  { id: "bright", name: "Яркий", color: "#5552ff" },
-  { id: "black", name: "Чёрный", color: "#000000" },
+  { id: "blue", name: "Электрик", color: "#0804ff" },
+  { id: "deep", name: "В движении", color: "#0040cb" },
+  { id: "bright", name: "С чистого листа", color: "#eeeae2" },
+  { id: "black", name: "После смены", color: "#000000" },
 ];
 
 const PRESETS = [500, 1000, 2000, 3000];
@@ -56,7 +56,7 @@ export default function CertificatesPage() {
             <span className="fld-l">Дизайн</span>
             <div className="cdesigns">
               {DESIGNS.map((d) => (
-                <button key={d.id} type="button" className={`cdesign${design.id === d.id ? " is-on" : ""}`} onClick={() => setDesign(d)}>
+                <button key={d.id} type="button" aria-pressed={design.id === d.id} className={`cdesign${design.id === d.id ? " is-on" : ""}`} onClick={() => setDesign(d)}>
                   <span className="cdesign-sw" style={{ background: d.color }} />
                   {d.name}
                 </button>
@@ -133,18 +133,18 @@ export default function CertificatesPage() {
 
         {/* Превью */}
         <div>
-          <div className="cert" style={{ borderColor: design.color, color: design.color }}>
+          <div className={`cert cert-${design.id}`}>
             <div className="cert-pat" />
             <div className="cert-in">
               <div>
                 <div className="label" style={{ color: "inherit" }}>Подарочный сертификат</div>
-                <div style={{ fontFamily: "var(--font-display)", textTransform: "lowercase", fontSize: 22 }}>трудкрутшоп</div>
+                <div className="cert-title">Твой выбор.<br />Твой трудкрут.</div>
               </div>
               <div className="cert-sum">{formatPrice(amount)}</div>
               <div className="cert-code">КОД: XXXX-XXXX-XXXX</div>
             </div>
           </div>
-          <p className="hint">Так сертификат придёт получателю. Код подставляется после оплаты.</p>
+          <p className="hint">Предпросмотр оформления. Код появится после оплаты.</p>
         </div>
       </div>
     </div>

@@ -7,3 +7,15 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Обязательный процесс CI/CD
+
+Все изменения доставляем через последовательность:
+
+`push → build → test → package → registry → staging → production`
+
+- CI: push, build, test, package, registry.
+- CD: staging, production.
+- Публикация выполняется через CI/CD проекта. Прямой деплой с локального компьютера (в том числе через Vercel CLI) не использовать.
+- Сначала проверяем результат на staging, затем доставляем проверенный артефакт в production.
+- Если pipeline отсутствует или не работает, сначала настроить или исправить его; не обходить процесс ручной публикацией.

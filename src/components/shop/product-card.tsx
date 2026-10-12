@@ -36,17 +36,17 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <article className="pcard">
       <Link ref={imgRef} href={`/product/${product.slug}`} className="pcard-img" aria-label={product.name}>
-        <div className="pcard-badges">
+        <ProductThumb label={product.name} category={product.category} src={product.image} style={{ aspectRatio: "3 / 4" }} />
+      </Link>
+
+      <div className="pcard-b">
+        {(product.isNew || product.isBestseller || discount !== null) && <div className="pcard-badges">
           {product.isNew && <span className="badge badge-blue">Новинка</span>}
           {product.isBestseller && (
             <span className="badge badge-dark"><Icon name="LinearEssentionalUICupStar" size={13} /> Хит</span>
           )}
           {discount !== null && <span className="badge badge-alert">−{discount}%</span>}
-        </div>
-        <ProductThumb label={product.name} category={product.category} src={product.image} />
-      </Link>
-
-      <div className="pcard-b">
+        </div>}
         <Link href={`/product/${product.slug}`} className="pcard-n">{product.name}</Link>
         <div className="pcard-f">
           <div className="pcard-p">

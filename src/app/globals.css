@@ -335,8 +335,7 @@ h1, h2, h3, [id] { scroll-margin-top: 120px; }
 
 /* ─── Полосы/секции ──────────────────────────────────────────────── */
 .strip { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin: 0 0 44px; }
-.strip-i { display: flex; gap: 14px; align-items: flex-start; border: 1px solid var(--rso-border); border-radius: var(--radius-card-md); padding: 20px 23px; color: var(--rso-blue); transition: border-color .18s, background .18s; }
-.strip-i:hover { border-color: var(--rso-blue); background: var(--rso-blue-tint); }
+.strip-i { display: flex; gap: 14px; align-items: flex-start; padding: 20px 0; color: var(--rso-blue); }
 .filters-h { display: flex; align-items: center; gap: 8px; font-family: var(--font-core); font-weight: 500; font-size: 15px; color: var(--rso-black); margin-bottom: 16px; }
 .ftr-line { display: inline-flex; align-items: center; gap: 8px; }
 .ftr-line svg { color: #fff; flex: 0 0 auto; }
@@ -350,7 +349,7 @@ h1, h2, h3, [id] { scroll-margin-top: 120px; }
 .band p { color: rgba(255,255,255,.85); max-width: 40ch; margin: 0; }
 
 /* ─── Сетка товаров ──────────────────────────────────────────────── */
-.pgrid { display: grid; grid-template-columns: repeat(var(--cols,3),minmax(0,1fr)); gap: 14px; }
+.pgrid { display: grid; grid-template-columns: repeat(var(--cols,3),minmax(0,1fr)); gap: 36px 14px; }
 /* Editorial-карточка: без рамок, чистая сетка. Изображение + подпись снизу. */
 .pcard { border: 0; border-radius: 0; overflow: hidden; background: transparent; display: flex; flex-direction: column; }
 .pcard-img { display: block; position: relative; padding: 0; }
@@ -358,7 +357,8 @@ h1, h2, h3, [id] { scroll-margin-top: 120px; }
 .pcard-img .ph img { transition: transform .4s cubic-bezier(.22,.61,.36,1); }
 .pcard:hover .ph-photo img { transform: scale(1.06); }
 @media (prefers-reduced-motion: reduce) { .pcard:hover { transform: none; } .pcard:hover .ph-photo img { transform: none; } }
-.pcard-badges { position: absolute; top: 12px; left: 12px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.pcard-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.pcard-badges .badge { padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--rso-text-muted); font-size: 11px; }
 .pcard-b { padding: 14px 2px 4px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
 .pcard-n { font-family: var(--font-core); font-size: 16px; line-height: 1.25; color: var(--rso-black); transition: color .16s; }
 .pcard-n:hover { color: var(--rso-blue); }
@@ -475,7 +475,7 @@ h1, h2, h3, [id] { scroll-margin-top: 120px; }
   .menu-btn-t { display: none; }
   .menu-btn { padding: 0 10px; }
   .hdr-logo-img { height: 34px; }
-  .pgrid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 10px; }
+  .pgrid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 28px 10px; }
   .strip { grid-template-columns: 1fr; }
   .band { grid-template-columns: 1fr; padding: 28px 22px; }
   .band h2 { font-size: 34px; }
@@ -563,9 +563,15 @@ h1, h2, h3, [id] { scroll-margin-top: 120px; }
 .cdesigns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .cdesign { display: flex; align-items: center; gap: 12px; border: 1px solid var(--rso-border); border-radius: var(--radius-btn); padding: 12px 14px; background: #fff; cursor: pointer; text-align: left; font-size: 14px; font-family: var(--font-core); }
 .cdesign.is-on { border-color: var(--rso-blue); background: var(--rso-blue-tint); }
-.cdesign-sw { width: 28px; height: 28px; border-radius: 8px; border: 1px solid transparent; flex: 0 0 28px; }
-.cert { border: 1px solid; border-radius: var(--radius-card-md); padding: 32px; position: relative; overflow: hidden; aspect-ratio: 1.6; }
-.cert-pat { position: absolute; inset: 0; opacity: .5; -webkit-mask: url(/brand/mark-trudkrut.svg) right -20% bottom -20%/70% no-repeat; mask: url(/brand/mark-trudkrut.svg) right -20% bottom -20%/70% no-repeat; background: currentColor; }
+.cdesign-sw { width: 28px; height: 28px; border-radius: 0; border: 1px solid var(--rso-border); flex: 0 0 28px; }
+.cert { color: #fff; background: #0804ff; border: 0; border-radius: 0; padding: 24px; position: relative; overflow: hidden; aspect-ratio: 1.4; }
+.cert-deep { background: repeating-linear-gradient(-35deg, #0040cb 0 34px, #0034a8 34px 36px); }
+.cert-bright { background: #eeeae2; color: #111; }
+.cert-black { background: #111; }
+.cert-title { font-family: var(--font-display); font-size: clamp(24px, 3vw, 34px); line-height: 1.05; letter-spacing: -.04em; margin-top: 18px; }
+.cert-pat { position: absolute; inset: 0; opacity: .12; -webkit-mask: url(/brand/mark-trudkrut.svg) right -20% bottom -20%/85% no-repeat; mask: url(/brand/mark-trudkrut.svg) right -20% bottom -20%/85% no-repeat; background: currentColor; }
+.cert-bright .cert-pat { opacity: .08; }
+.cert-black .cert-pat { opacity: .3; background: #0804ff; }
 .cert-in { position: relative; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
 .cert-sum { font-size: 40px; font-weight: 300; margin-top: auto; font-family: var(--font-numeric); }
 .cert-code { font-size: 13px; opacity: .7; letter-spacing: .04em; }
