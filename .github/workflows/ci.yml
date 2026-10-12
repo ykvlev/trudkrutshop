@@ -66,7 +66,7 @@ jobs:
       - name: Package
         if: github.event_name != 'pull_request'
         run: |
-          tar -czf release.tar.gz .vercel/output .vercel/project.json package.json package-lock.json
+          tar --dereference -czf release.tar.gz .vercel/output .vercel/project.json package.json package-lock.json
           sha256sum release.tar.gz > release.tar.gz.sha256
       - uses: actions/upload-artifact@v4
         if: github.event_name != 'pull_request'
