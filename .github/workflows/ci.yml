@@ -66,7 +66,8 @@ jobs:
       - name: Package
         if: github.event_name != 'pull_request'
         run: |
-          tar --dereference -czf release.tar.gz .vercel/output .vercel/project.json package.json package-lock.json
+          node scripts/package-release.mjs
+          tar --dereference --null -czf release.tar.gz -T release-files.txt
           sha256sum release.tar.gz > release.tar.gz.sha256
       - uses: actions/upload-artifact@v4
         if: github.event_name != 'pull_request'
@@ -128,7 +129,6 @@ jobs:
           oras pull '${{ needs.registry.outputs.reference }}'
           sha256sum -c release.tar.gz.sha256
           tar -xzf release.tar.gz
-          npm ci --ignore-scripts --include=optional
           npm install --global vercel@59.3.0
       - name: Deploy to staging without changing production domain
         id: deploy
