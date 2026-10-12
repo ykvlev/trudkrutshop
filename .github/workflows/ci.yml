@@ -145,7 +145,7 @@ jobs:
           DEPLOYMENT: ${{ steps.deploy.outputs.url }}
         run: |
           for ROUTE in / /catalog/futbolki /certificates; do
-            vercel curl "$ROUTE" --deployment "$DEPLOYMENT" --token="$VERCEL_TOKEN" -- --fail --retry 3 --retry-delay 5 --output /tmp/page.html
+            vercel --token "$VERCEL_TOKEN" curl "$ROUTE" --deployment "$DEPLOYMENT" -- --fail --retry 3 --retry-delay 5 --output /tmp/page.html
             test -s /tmp/page.html
           done
           grep -q 'cert-title' /tmp/page.html
