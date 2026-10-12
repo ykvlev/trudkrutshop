@@ -16,6 +16,7 @@ jobs:
     env:
       DATABASE_URL: postgresql://tksh:tksh@localhost:5432/tksh_test?schema=public
       TEST_DATABASE_URL: postgresql://tksh:tksh@localhost:5432/tksh_test?schema=public
+      NEXT_EXPERIMENTAL_FUNCTION_BUNDLING: '1'
       VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
     services:
