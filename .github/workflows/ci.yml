@@ -46,7 +46,7 @@ jobs:
         run: npm run build
       - name: Install Vercel CLI
         if: github.event_name != 'pull_request'
-        run: npm install --global vercel@59.3.0
+        run: npm install --global vercel@63.1.2
       - name: Build deployable artifact
         if: github.event_name != 'pull_request'
         env:
@@ -130,7 +130,7 @@ jobs:
           oras pull '${{ needs.registry.outputs.reference }}'
           sha256sum -c release.tar.gz.sha256
           tar -xzf release.tar.gz
-          npm install --global vercel@59.3.0
+          npm install --global vercel@63.1.2
       - name: Deploy to staging without changing production domain
         id: deploy
         env:
@@ -166,7 +166,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
           DEPLOYMENT: ${{ needs.staging.outputs.url }}
         run: |
-          npm install --global vercel@59.3.0
+          npm install --global vercel@63.1.2
           mkdir -p .vercel
           printf '{"orgId":"%s","projectId":"%s"}' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
           vercel promote "$DEPLOYMENT" --yes --token="$VERCEL_TOKEN"
