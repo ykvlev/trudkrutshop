@@ -169,7 +169,7 @@ jobs:
           npm install --global vercel@63.1.2
           mkdir -p .vercel
           printf '{"orgId":"%s","projectId":"%s"}' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
-          vercel promote "$DEPLOYMENT" --yes --token="$VERCEL_TOKEN"
+          vercel promote "$DEPLOYMENT" --yes --scope="$VERCEL_ORG_ID" --token="$VERCEL_TOKEN"
           curl --fail --retry 3 https://trudkrutshop.vercel.app/certificates -o /tmp/production.html
           grep -q 'cert-title' /tmp/production.html
           echo 'Production: https://trudkrutshop.vercel.app' >> "$GITHUB_STEP_SUMMARY"
