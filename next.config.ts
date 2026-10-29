@@ -31,6 +31,7 @@ const nextConfig: NextConfig = {
   output: process.env.VERCEL ? undefined : "standalone",
   // Шрифты для генерации PDF-счёта читаются с диска в рантайме — включаем их в трейс.
   outputFileTracingIncludes: {
+    "/*": ["node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node"],
     "/api/invoice/[number]": ["src/lib/invoice/fonts/**/*"],
     "/opengraph-image": ["src/lib/invoice/fonts/**/*"],
   },

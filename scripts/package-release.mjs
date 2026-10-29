@@ -11,6 +11,11 @@ function walk(directory) {
     if (entry.isDirectory()) walk(path);
     else if (entry.name === ".vc-config.json") {
       const config = JSON.parse(readFileSync(path, "utf8"));
+      const traced = Object.keys(config.filePathMap ?? {});
+      if (traced.some((source) => source.includes("/.prisma/client/")) &&
+          !traced.some((source) => source.endsWith("/libquery_engine-rhel-openssl-3.0.x.so.node"))) {
+        throw new Error(`Missing Vercel Prisma query engine in ${path}`);
+      }
       for (const source of Object.keys(config.filePathMap ?? {})) {
         if (!existsSync(source)) throw new Error(`Missing traced file: ${source}`);
         if (source === ".env" || source.startsWith(".env." ) && source !== ".env.example") {
