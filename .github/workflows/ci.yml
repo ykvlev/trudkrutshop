@@ -52,7 +52,28 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
+          node --input-type=module <<'NODE'
+          import { randomBytes } from 'node:crypto';
+          const { VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID } = process.env;
+          const url = `https://api.vercel.com/v10/projects/${VERCEL_PROJECT_ID}/env?teamId=${encodeURIComponent(VERCEL_ORG_ID)}`;
+          const headers = { Authorization: `Bearer ${VERCEL_TOKEN}`, 'Content-Type': 'application/json' };
+          const response = await fetch(url, { headers });
+          if (!response.ok) throw new Error(`Cannot inspect session configuration: HTTP ${response.status}`);
+          const { envs } = await response.json();
+          const configured = envs.some((env) => env.key === 'AUTH_SECRET' && env.target?.includes('production'));
+          if (!configured) {
+            const created = await fetch(url, {
+              method: 'POST', headers,
+              body: JSON.stringify({ key: 'AUTH_SECRET', value: randomBytes(32).toString('hex'), type: 'encrypted', target: ['production'] }),
+            });
+            if (!created.ok) throw new Error(`Cannot configure session signing: HTTP ${created.status}`);
+            const result = await created.json();
+            if (result.failed?.length) throw new Error('Session configuration was rejected');
+            console.log('Configured production session signing secret');
+          }
+          NODE
           vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          node --env-file=.vercel/.env.production.local -e 'if (!process.env.AUTH_SECRET || process.env.AUTH_SECRET.length < 16) throw new Error("Production AUTH_SECRET is missing or too short")'
           vercel build --prod --token="$VERCEL_TOKEN"
       - name: Test code
         run: |
