@@ -1,6 +1,7 @@
 import { AdminApp, type AdminData } from "@/components/admin/admin-app";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { adminCertificate } from "@/lib/admin-certificates";
 
 export const dynamic = "force-dynamic";
 
@@ -17,10 +18,6 @@ const REASON_RU: Record<string, string> = {
   WRITE_OFF_DEFECT: "Списание (брак)", RETURN: "Возврат на склад", RECEIPT: "Приёмка",
   SYNC: "Синхронизация", MANUAL: "Корректировка",
 };
-const CERT_RU: Record<string, string> = {
-  PENDING: "Ожидает отправки", ACTIVE: "Активен", PARTIALLY_USED: "Частично",
-  USED: "Погашен", EXPIRED: "Истёк", CANCELLED: "Отменён",
-};
 
 export default async function AdminPage() {
   const admin = await requireAdmin();
@@ -32,7 +29,7 @@ export default async function AdminPage() {
     prisma.product.findMany({ include: { variants: true, category: true }, orderBy: { createdAt: "desc" } }),
     prisma.stockMovement.findMany({ include: { variant: true }, orderBy: { createdAt: "desc" }, take: 60 }),
     prisma.promoCode.findMany({ orderBy: { createdAt: "desc" } }),
-    prisma.certificate.findMany({ orderBy: { createdAt: "desc" }, take: 60 }),
+    prisma.certificate.findMany({ include: { design: true }, orderBy: { createdAt: "desc" }, take: 60 }),
     prisma.category.findMany({ include: { parent: true }, orderBy: { sortOrder: "asc" } }),
     prisma.adminUser.findMany({ orderBy: { createdAt: "asc" } }),
     prisma.productVariant.aggregate({ _sum: { stock: true } }),
@@ -66,9 +63,7 @@ export default async function AdminPage() {
       id: p.id, code: p.code, type: p.type, value: Number(p.value),
       min: p.minAmount != null ? Number(p.minAmount) : null, limit: p.usageLimit, used: p.usedCount, active: p.isActive,
     })),
-    certificates: certificates.map((c) => ({
-      code: c.code, nominal: Number(c.nominal), balance: Number(c.balance), status: CERT_RU[c.status] ?? c.status,
-    })),
+    certificates: certificates.map(adminCertificate),
     categories: categories.map((c) => ({ slug: c.slug, name: c.name, parent: c.parent?.slug ?? null })),
     users: users.map((u) => ({ id: u.id, name: u.name, email: u.email, role: u.role, active: u.isActive })),
   };

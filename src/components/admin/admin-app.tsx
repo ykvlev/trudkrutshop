@@ -10,6 +10,7 @@ import {
 import { logoutAdmin, changeOwnPassword, type PasswordState } from "@/lib/admin-auth-actions";
 import { can, type Perm } from "@/lib/permissions";
 import type { AdminRole } from "@prisma/client";
+import { searchAdminCertificates } from "@/lib/admin-certificate-actions";
 
 // ── Типы данных (приходят из серверной admin/page.tsx) ──────────────
 export type AdminData = {
@@ -24,7 +25,7 @@ export type AdminData = {
   variants: { id: string; sku: string; name: string }[];
   movements: { date: string; sku: string; reason: string; delta: number }[];
   promos: { id: string; code: string; type: "PERCENT" | "FIXED"; value: number; min: number | null; limit: number | null; used: number; active: boolean }[];
-  certificates: { code: string; nominal: number; balance: number; status: string }[];
+  certificates: { code: string; name: string; nominal: number; balance: number; status: string }[];
   categories: { slug: string; name: string; parent: string | null }[];
   users: { id: string; name: string; email: string; role: string; active: boolean }[];
 };
@@ -323,17 +324,27 @@ function StockForm({ variants, onClose, run }: { variants: AdminData["variants"]
 }
 
 function Certificates({ data }: { data: AdminData }) {
+  const [state, search, pending] = useActionState(searchAdminCertificates, { items: data.certificates });
   return (
     <>
       <div className="sec-h"><div><p className="label">Маркетинг</p><h2>Сертификаты</h2></div></div>
-      <table className="atable">
-        <thead><tr><th>Код</th><th>Номинал</th><th>Остаток</th><th>Статус</th></tr></thead>
+      <form action={search} className="afilters" role="search" aria-label="Поиск сертификатов">
+        <input type="search" name="query" aria-label="Наименование или код сертификата" placeholder="Наименование или код сертификата" maxLength={200} />
+        <button type="submit" className="btn btn-blue btn-m" disabled={pending}>{pending ? "Ищем…" : "Найти"}</button>
+      </form>
+      <p className="hint" role="status" aria-live="polite">
+        {state.error ?? (state.total !== undefined
+          ? `Найдено: ${state.total}. Показано: ${state.items.length}.${state.total > state.items.length ? " Уточните наименование или код." : ""}`
+          : "Показаны последние сертификаты. Поиск проверяет всю базу.")}
+      </p>
+      <table className="atable" aria-busy={pending}>
+        <thead><tr><th>Код</th><th>Наименование</th><th>Номинал</th><th>Остаток</th><th>Статус</th></tr></thead>
         <tbody>
-          {data.certificates.map((r) => (
-            <tr key={r.code}><td><b>{r.code}</b></td><td className="num">{formatPrice(r.nominal)}</td>
+          {state.items.map((r) => (
+            <tr key={r.code}><td><b>{r.code}</b></td><td>{r.name}</td><td className="num">{formatPrice(r.nominal)}</td>
               <td className="num">{formatPrice(r.balance)}</td><td><span className="badge badge-mute">{r.status}</span></td></tr>
           ))}
-          {data.certificates.length === 0 && <tr><td colSpan={4} style={{ color: "var(--rso-text-muted)" }}>Пока нет сертификатов</td></tr>}
+          {state.items.length === 0 && <tr><td colSpan={5} style={{ color: "var(--rso-text-muted)" }}>{state.total !== undefined ? "Ничего не найдено" : "Пока нет сертификатов"}</td></tr>}
         </tbody>
       </table>
     </>
