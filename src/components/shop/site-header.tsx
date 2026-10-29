@@ -16,7 +16,31 @@ const infoNav = [
   { href: "/contacts", label: "Контакты" },
 ];
 
+// Группируем существующие категории только для бокового меню.
+// У виртуального раздела «Одежда» нет отдельной страницы в каталоге.
+function catalogMenu(nav: NavCategory[]) {
+  const clothing = nav.find((c) => c.slug === "odezhda");
+  const clothingSlugs = ["futbolki", "hudi", "svitshoty", "rubashki", "longslivy"];
+  const accessories = nav.find((c) => c.slug === "aksessuary");
+  const badges = nav.find((c) => c.slug === "nashivki-i-znachki" || c.slug === "znachki");
+
+  return [
+    {
+      slug: clothing?.slug ?? "odezhda",
+      name: "Одежда",
+      children: clothing?.children ?? clothingSlugs.flatMap((slug) => {
+        const category = nav.find((c) => c.slug === slug);
+        return category ? [{ slug: category.slug, name: category.name }] : [];
+      }),
+      hasPage: Boolean(clothing),
+    },
+    { slug: "aksessuary", name: "Аксессуары", children: accessories?.children ?? [], hasPage: Boolean(accessories) },
+    { slug: badges?.slug ?? "znachki", name: "Нашивки и значки", children: badges?.children ?? [], hasPage: Boolean(badges) },
+  ];
+}
+
 export function SiteHeader({ nav = [] }: { nav?: NavCategory[] }) {
+  const menu = catalogMenu(nav);
   const cart = useCart();
   const drawer = useCartDrawer();
   const [open, setOpen] = useState(false);
@@ -103,9 +127,9 @@ export function SiteHeader({ nav = [] }: { nav?: NavCategory[] }) {
             </div>
 
             <nav className="drawer-nav">
-              {nav.map((c) => (
+              {menu.map((c) => (
                 <div key={c.slug} className="drawer-cat">
-                  {c.children.length > 0 ? (
+                  {c.children.length > 0 || !c.hasPage ? (
                     <button
                       type="button"
                       className={`drawer-cat-h${expanded === c.slug ? " is-open" : ""}`}
@@ -122,7 +146,7 @@ export function SiteHeader({ nav = [] }: { nav?: NavCategory[] }) {
                   )}
                   {c.children.length > 0 && expanded === c.slug && (
                     <div className="drawer-sub">
-                      <Link href={`/catalog/${c.slug}`} onClick={() => setOpen(false)}>Все · {c.name}</Link>
+                      {c.hasPage && <Link href={`/catalog/${c.slug}`} onClick={() => setOpen(false)}>Все · {c.name}</Link>}
                       {c.children.map((k) => (
                         <Link key={k.slug} href={`/catalog/${k.slug}`} onClick={() => setOpen(false)}>{k.name}</Link>
                       ))}
